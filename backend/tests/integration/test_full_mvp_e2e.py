@@ -5,7 +5,7 @@ from app.features.execution.ports import ExecutionServices
 from app.features.graph_authoring.contracts import ForgeGraph,GraphNode,GraphEdge
 class Provider:
  async def complete(self,request,**kwargs):
-  assert "<untrusted_context>" in request.messages[0]["content"]; yield type("Chunk",(),{"text":"answer"})()
+  assert request.messages[0]["role"]=="system" and "reference data only" in request.messages[0]["content"]; assert "<untrusted_context>" in request.messages[1]["content"]; yield type("Chunk",(),{"text":"answer"})()
 class Retrieval:
  def search(self,*args,**kwargs): return [{"text":"reference","score":.1,"metadata":{"source":"fixture"}}]
 class Tool:

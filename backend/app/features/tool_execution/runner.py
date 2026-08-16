@@ -42,7 +42,8 @@ class ToolRunner:
             except UnsafePathError as exc: raise ToolError("write directory is outside workspace") from exc
             if not resolved.is_dir(): raise ToolError("write directory is not a directory")
             write_paths.append(str(resolved.relative_to(self.boundary.workspace)))
-        payload={"path":str(path.relative_to(self.boundary.workspace)),"content":hashlib.sha256(path.read_bytes()).hexdigest(),"args":spec.args,"env":sorted(spec.env_allowlist),"writes":sorted(write_paths),"timeout":spec.timeout_seconds}
+        stat=path.stat()
+        payload={"path":str(path.relative_to(self.boundary.workspace)),"content":hashlib.sha256(path.read_bytes()).hexdigest(),"mtime_ns":stat.st_mtime_ns,"args":spec.args,"env":sorted(spec.env_allowlist),"writes":sorted(write_paths),"timeout":spec.timeout_seconds}
         return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     def validate_write_target(self, relative_target: str, allowed_write_dirs: list[str]) -> Path:
         try: target=self.boundary.resolve(relative_target,must_exist=False)
@@ -59,7 +60,8 @@ class ToolRunner:
         for name in spec.env_allowlist:
             if name in os.environ and name not in {"OPENAI_API_KEY","OPENROUTER_API_KEY","HARNESSFORGE_SESSION_TOKEN"}: env[name]=os.environ[name]
         if path.suffix==".py": command=[sys.executable,str(path),*spec.args]
-        else: command=[str(path),*spec.args]
+        elif path.suffix==".sh": command=["/bin/sh",str(path),*spec.args]
+        else: command=["/usr/bin/node",str(path),*spec.args]
         process=await asyncio.create_subprocess_exec(*command,cwd=self.boundary.workspace,env=env,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True)
         async def read_capped(stream: asyncio.StreamReader) -> bytes:
             data = bytearray()

@@ -60,3 +60,20 @@ def test_config_hash_includes_explicit_limits(tmp_path):
 
 def test_tool_spec_bounds_environment_allowlist(tmp_path):
     with pytest.raises(ValueError): ToolSpec(path="tool.py",args=[],env_allowlist=["A"]*65)
+
+
+def test_shell_and_javascript_tools_execute_as_scripts(tmp_path):
+    (tmp_path/"tool.sh").write_text("printf shell-ok")
+    (tmp_path/"tool.js").write_text("process.stdout.write('js-ok')")
+    runner=ToolRunner(tmp_path)
+    for name, expected in (("tool.sh","shell-ok"),("tool.js","js-ok")):
+        spec=ToolSpec(path=name,args=[],timeout_seconds=2)
+        result=asyncio.run(runner.run(spec,approved_hash=runner.config_hash(spec)))
+        assert result.stdout==expected
+
+
+def test_tool_hash_changes_when_file_timestamp_changes(tmp_path):
+    import os,time
+    script=tmp_path/"tool.py"; script.write_text("print('ok')"); runner=ToolRunner(tmp_path); spec=ToolSpec(path="tool.py",args=[])
+    first=runner.config_hash(spec); now=time.time_ns()+10_000_000; os.utime(script,ns=(now,now))
+    assert first != runner.config_hash(spec)
