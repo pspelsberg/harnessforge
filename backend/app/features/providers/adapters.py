@@ -40,10 +40,9 @@ class OpenAICompatibleAdapter(BaseProviderAdapter):
             raise ProviderError("external dataflow approval required")
         if len(json.dumps(request.messages, ensure_ascii=False).encode()) > CAPS.max_event_bytes:
             raise ProviderError("request too large")
-        # Re-validate mutable/copy-derived configs immediately before network I/O.
         from app.features.providers.contracts import validate_provider_url
         validate_provider_url(self.config.base_url, self.config.kind)
-        external = self.config.kind in {ProviderKind.OPENAI, ProviderKind.OPENROUTER}
+        external = self.config.kind in {ProviderKind.OPENAI,ProviderKind.OPENROUTER}
         canonical_secret_env="OPENAI_API_KEY" if self.config.kind == ProviderKind.OPENAI else "OPENROUTER_API_KEY" if self.config.kind == ProviderKind.OPENROUTER else ""
         key=os.environ.get(canonical_secret_env) if external else None
         if external and not key:
@@ -68,44 +67,53 @@ class OpenAICompatibleAdapter(BaseProviderAdapter):
                 length=response.headers.get("content-length")
                 if length and (not length.isdigit() or int(length) > CAPS.max_event_bytes):
                     raise ProviderError("provider response exceeded limit")
+                content_type=response.headers.get("content-type", "")
+                if "text/event-stream" in content_type:
+                    received=0
+                    async for raw_line in response.aiter_lines():
+                        received += len(raw_line.encode("utf-8"))+1
+                        if received > CAPS.max_event_bytes:
+                            raise ProviderError("provider response exceeded limit")
+                        if not raw_line.startswith("data:"):
+                            continue
+                        raw=raw_line[5:].strip()
+                        if raw=="[DONE]":
+                            continue
+                        try:
+                            event=json.loads(raw); choices=event.get("choices",[])
+                            if not choices: continue
+                            choice=choices[0]; delta=choice.get("delta",{}); text=delta.get("content",""); finish_reason=choice.get("finish_reason")
+                            chunk=CompletionChunk(text=text,finish_reason=finish_reason)
+                        except (ValueError,KeyError,IndexError,TypeError,json.JSONDecodeError) as exc:
+                            raise ProviderError("provider stream was invalid") from exc
+                        if chunk.text or chunk.finish_reason:
+                            yield chunk
+                    return
                 body=bytearray()
                 async for chunk in response.aiter_bytes():
                     body.extend(chunk)
                     if len(body) > CAPS.max_event_bytes:
                         raise ProviderError("provider response exceeded limit")
+                try:
+                    data=json.loads(bytes(body))
+                    if is_ollama:
+                        text=data["message"]["content"]; finish_reason=None
+                    else:
+                        choices=data["choices"]
+                        if not isinstance(choices,list) or not choices: raise ValueError
+                        item=choices[0]; content=item.get("message", item.get("delta", {})); text=content.get("content",""); finish_reason=item.get("finish_reason")
+                except (ValueError, KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+                    raise ProviderError("provider response was invalid") from exc
+                if not isinstance(text,str) or len(text.encode()) > CAPS.max_event_bytes:
+                    raise ProviderError("provider output exceeded limit")
+                usage=data.get("usage", {}) if isinstance(data, dict) and isinstance(data.get("usage",{}),dict) else {}
+                prompt_tokens=usage.get("prompt_tokens") if isinstance(usage.get("prompt_tokens"),int) and 0<=usage.get("prompt_tokens")<=100000000 else None
+                completion_tokens=usage.get("completion_tokens") if isinstance(usage.get("completion_tokens"),int) and 0<=usage.get("completion_tokens")<=100000000 else None
+                try:
+                    yield CompletionChunk(text=text,finish_reason=finish_reason,prompt_tokens=prompt_tokens,completion_tokens=completion_tokens,cost=data.get("cost") if isinstance(data.get("cost"),(int,float)) else None)
+                except ValueError as exc:
+                    raise ProviderError("provider usage was invalid") from exc
         except ProviderError:
             raise
         except httpx.HTTPError as exc:
             raise ProviderError("provider request failed") from exc
-        content_type=response.headers.get("content-type", "")
-        if "text/event-stream" in content_type:
-            for raw_line in bytes(body).splitlines():
-                if not raw_line.startswith(b"data:"): continue
-                raw=raw_line[5:].strip()
-                if raw==b"[DONE]": continue
-                try:
-                    event=json.loads(raw); choices=event.get("choices",[])
-                    if not choices: continue
-                    choice=choices[0]; delta=choice.get("delta",{}); text=delta.get("content",""); finish_reason=choice.get("finish_reason")
-                except (ValueError,KeyError,IndexError,TypeError) as exc: raise ProviderError("provider stream was invalid") from exc
-                if text: yield CompletionChunk(text=text,finish_reason=finish_reason)
-            return
-        try:
-            data=json.loads(bytes(body))
-            if is_ollama:
-                text=data["message"]["content"]; finish_reason=None
-            else:
-                choices=data["choices"]
-                if not isinstance(choices,list) or not choices: raise ValueError
-                item=choices[0]; content=item.get("message", item.get("delta", {})); text=content.get("content",""); finish_reason=item.get("finish_reason")
-        except (ValueError, KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
-            raise ProviderError("provider response was invalid") from exc
-        if not isinstance(text,str) or len(text.encode()) > CAPS.max_event_bytes:
-            raise ProviderError("provider output exceeded limit")
-        usage=data.get("usage", {}) if isinstance(data, dict) and isinstance(data.get("usage",{}),dict) else {}
-        prompt_tokens=usage.get("prompt_tokens") if isinstance(usage.get("prompt_tokens"),int) and 0<=usage.get("prompt_tokens")<=100000000 else None
-        completion_tokens=usage.get("completion_tokens") if isinstance(usage.get("completion_tokens"),int) and 0<=usage.get("completion_tokens")<=100000000 else None
-        try:
-            yield CompletionChunk(text=text,finish_reason=finish_reason,prompt_tokens=prompt_tokens,completion_tokens=completion_tokens,cost=data.get("cost") if isinstance(data.get("cost"),(int,float)) else None)
-        except ValueError as exc:
-            raise ProviderError("provider usage was invalid") from exc
