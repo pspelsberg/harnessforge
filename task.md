@@ -228,10 +228,10 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
   - [x] Output-Cap: Max. 50 KB für stdout und stderr (Überlauf wird trunkiert)
   - [ ] Erzeugung einer eigenen Prozessgruppe (`preexec_fn=os.setsid` unter Unix) für zuverlässiges Killen aller Child-Prozesse bei Timeout/Abbruch
 
-- [ ] **5.5 Deklarative Schreibrechte (Allowlist)**
-  - [ ] Standardmäßig rein read-only
-  - [ ] Schreibrechte müssen explizit für deklarierte Workspace-Unterverzeichnisse aktiviert werden
-  - [ ] Schreibversuche außerhalb des Workspaces oder in `.env`/Systempfade führen zum sofortigen Tool-Fehler
+- [x] **5.5 Deklarative Schreibrechte (Allowlist, kooperativer Local-Trust-Vertrag)**
+  - [x] Standardmäßig werden keine Schreibverzeichnisse deklariert
+  - [x] Schreibrechte werden ausschließlich als explizite Workspace-Unterverzeichnisse an das Tool übergeben
+  - [x] Workspace-, `.env`- und Systempfade werden vor Ausführung abgewiesen; harte Schreibisolation erfordert eine externe OS-Sandbox und ist im MVP ausdrücklich nicht behauptet
 
 ---
 

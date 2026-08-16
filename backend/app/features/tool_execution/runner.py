@@ -61,7 +61,10 @@ class ToolRunner:
             if name in os.environ and name not in {"OPENAI_API_KEY","OPENROUTER_API_KEY","HARNESSFORGE_SESSION_TOKEN"}: env[name]=os.environ[name]
         if path.suffix==".py": command=[sys.executable,str(path),*spec.args]
         elif path.suffix==".sh": command=["/bin/sh",str(path),*spec.args]
-        else: command=["/usr/bin/node",str(path),*spec.args]
+        else:
+            if not Path("/usr/bin/node").is_file():
+                raise ToolError("node runtime is unavailable")
+            command=["/usr/bin/node",str(path),*spec.args]
         process=await asyncio.create_subprocess_exec(*command,cwd=self.boundary.workspace,env=env,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True)
         async def read_capped(stream: asyncio.StreamReader) -> bytes:
             data = bytearray()
