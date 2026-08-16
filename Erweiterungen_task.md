@@ -292,10 +292,10 @@ features/human_gates/
 
 ## Security-/Test-Tasks
 
-- [ ] Replay, TOCTOU, stale fingerprint, concurrent decisions, cancellation und expiry testen.
-- [ ] Approval-Events und UI dürfen keine Secrets/kompletten Prompts ausgeben.
-- [ ] Vitest: Modal, keyboard/focus behavior, deny default, optimistic-race handling.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] Replay, TOCTOU, stale fingerprint, concurrent decisions, cancellation und expiry testen.
+- [x] Approval-Events und UI dürfen keine Secrets/kompletten Prompts ausgeben.
+- [x] Vitest: Modal, keyboard/focus behavior, deny default, optimistic-race handling.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 

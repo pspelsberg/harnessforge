@@ -1,0 +1,5 @@
+import { apiJson } from "../../shared/api";
+export type GateRecord = { contract_version: "1"; request_id: string; nonce: string; run_id: string; node_id: string; gate_class: string; action_fingerprint: string; preview: { action: string; command: string; diff: string; dataflow: string; risk: "low" | "medium" | "high" | "critical"; write_targets: string[] }; status: "pending" | "approved" | "denied" | "expired" | "cancelled" | "consumed" };
+export type GateDecision = { request_id: string; nonce: string; session_id: string; decision: "approved" | "denied"; reason?: string };
+export function getGate(requestId: string, sessionId: string, token: string): Promise<GateRecord> { return apiJson(`/api/gates/${encodeURIComponent(requestId)}?session_id=${encodeURIComponent(sessionId)}`, { token }); }
+export function decideGate(requestId: string, decision: GateDecision, token: string): Promise<GateRecord> { return apiJson(`/api/gates/${encodeURIComponent(requestId)}/decision`, { method: "POST", token, body: JSON.stringify(decision) }); }

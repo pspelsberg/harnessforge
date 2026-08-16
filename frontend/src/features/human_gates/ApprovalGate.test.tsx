@@ -1,0 +1,6 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { ApprovalGate } from "./ApprovalGate";
+vi.mock("./gatesApi", () => ({ decideGate: vi.fn(async (_id, decision) => ({ request_id: "gate-1", ...decision, status: decision.decision, preview: { action: "tool", command: "<script>bad</script>", diff: "", dataflow: "local", risk: "high", write_targets: [] } })) }));
+const gate={contract_version:"1" as const,request_id:"gate-1",nonce:"a".repeat(32),run_id:"run-1",node_id:"node",gate_class:"tool_write",action_fingerprint:"b".repeat(64),preview:{action:"tool",command:"<script>bad</script>",diff:"",dataflow:"local",risk:"high" as const,write_targets:[]},status:"pending" as const};
+describe("ApprovalGate", () => { it("defaults to deny-capable and renders previews as text", async () => { render(<ApprovalGate gate={gate} sessionId="session-1" token="token" />); expect(screen.getByText("Freigabe erforderlich")).toBeTruthy(); expect(screen.getByText("<script>bad</script>")).toBeTruthy(); fireEvent.click(screen.getByRole("button",{name:"Ablehnen"})); await waitFor(() => expect(screen.getByRole("button",{name:"Ablehnen"})).toBeTruthy()); expect(screen.queryByRole("script")).toBeNull(); }); });
