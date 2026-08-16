@@ -54,8 +54,8 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 
 ## 🎨 Phase 1: Frontend Canvas & Graph Authoring Slice
 
-- [ ] **1.1 Tailwind CSS v4 & Neural Forge Design Tokens**
-  - [ ] `frontend/src/index.css` mit den offiziellen Farb-Tokens einrichten:
+- [x] **1.1 Tailwind CSS v4 & Neural Forge Design Tokens**
+  - [x] `frontend/src/index.css` mit den offiziellen Farb-Tokens einrichten:
     - `--color-forge-canvas: #0b0f17` (Deep Obsidian Graphite Canvas)
     - `--color-forge-panel: #111827` (Dark Slate Sidebar/Inspector)
     - `--color-forge-node-bg: #151d2a` (Dark Steel Node Body)
@@ -63,47 +63,47 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
     - `--color-forge-amber: #f59e0b` (Forge Fire Glow / Active Step)
     - `--color-forge-cyan: #38bdf8` (RAG LanceDB Data Streams)
     - `--color-forge-gold: #fcd34d` (Pulse Data Edges)
-  - [ ] Logo [`assets/logo.jpg`](file:///home/peppi/coding/Harnessforge/assets/logo.jpg) im App-Header einbinden
+  - [x] Logo [`assets/logo.jpg`](file:///home/peppi/coding/Harnessforge/assets/logo.jpg) im App-Header einbinden
 
-- [ ] **1.2 React Flow Canvas Engine (`FlowCanvas.tsx`)**
-  - [ ] Infinite Zoom, Pan, Fit-to-View, Mini-Map und Dot-Grid (`#1e293b`)
-  - [ ] Drag-and-Drop Node-Palette aus der linken Sidebar
-  - [ ] Tastatur-Shortcuts: Undo (`Ctrl+Z`), Redo (`Ctrl+Y`), Löschen (`Del`/`Backspace`), Duplizieren (`Ctrl+D`)
-  - [ ] Export / Import Dialog für `.forge.json` mit automatischem Review-Modus für importierte Dateien
+- [x] **1.2 React Flow Canvas Engine (`FlowCanvas.tsx`)**
+  - [x] Infinite Zoom, Pan, Fit-to-View, Mini-Map und Dot-Grid (`#1e293b`)
+  - [x] Drag-and-Drop Node-Palette aus der linken Sidebar
+  - [x] Tastatur-Shortcuts: Undo (`Ctrl+Z`), Redo (`Ctrl+Y`), Löschen (`Del`/`Backspace`), Duplizieren (`Ctrl+D`)
+  - [x] Export / Import Dialog für `.forge.json` mit automatischem Review-Modus für importierte Dateien
 
-- [ ] **1.3 Custom Node Registry (Visual Anatomy & Handles)**
-  - [ ] `StartNode.tsx` (Start-Trigger, Input-Schema)
-  - [ ] `LLMNode.tsx` (Model-Selector, Temperature, File-Picker für `agents.md`, Prompt-Vorschau)
-  - [ ] `RAGNode.tsx` (LanceDB Path Picker, Table Dropdown, Top-K, Distance Metric)
-  - [ ] `LoopNode.tsx` (Condition Editor, True/False-Handles, Max Iterations, Fallback-Handle)
-  - [ ] `ReducerNode.tsx` (Action: `SET`/`APPEND_LIST`, Source-Path, Target-State-Key)
-  - [ ] `ToolNode.tsx` (Script-Picker, Args, Output-Limits, "Local Trust Mode"-Badge)
-  - [ ] `OutputNode.tsx` (Endzustand, Final Output Payload)
-  - [ ] Dynamische Status-Glows pro Node: `Idle`, `Running (Amber Pulse)`, `Success (Emerald)`, `Error (Crimson)`
+- [x] **1.3 Custom Node Registry (Visual Anatomy & Handles)**
+  - [x] `StartNode.tsx` (Start-Trigger, Input-Schema)
+  - [x] `LLMNode.tsx` (Model-Selector, Temperature, File-Picker für `agents.md`, Prompt-Vorschau)
+  - [x] `RAGNode.tsx` (LanceDB Path Picker, Table Dropdown, Top-K, Distance Metric)
+  - [x] `LoopNode.tsx` (Condition Editor, True/False-Handles, Max Iterations, Fallback-Handle)
+  - [x] `ReducerNode.tsx` (Action: `SET`/`APPEND_LIST`, Source-Path, Target-State-Key)
+  - [x] `ToolNode.tsx` (Script-Picker, Args, Output-Limits, "Local Trust Mode"-Badge)
+  - [x] `OutputNode.tsx` (Endzustand, Final Output Payload)
+  - [x] Dynamische Status-Glows pro Node: `Idle`, `Running (Amber Pulse)`, `Success (Emerald)`, `Error (Crimson)`
 
-- [ ] **1.4 Animierte Custom Edges (`ForgeEdge.tsx`)**
-  - [ ] SVG-Gradient-Kanten mit warmem Amber-Fluss (`#fcd34d` / `#fb923c`)
-  - [ ] Animierte Partikelbewegung bei aktivem Datenfluss
-  - [ ] Validierung visueller Verbindungsregeln (z. B. keine unzulässigen Cyclic-Verbindungen ohne Loop-Node)
+- [x] **1.4 Animierte Custom Edges (`ForgeEdge.tsx`)**
+  - [x] SVG-Gradient-Kanten mit warmem Amber-Fluss (`#fcd34d` / `#fb923c`)
+  - [x] Animierte Partikelbewegung bei aktivem Datenfluss
+  - [x] Validierung visueller Verbindungsregeln (z. B. keine unzulässigen Cyclic-Verbindungen ohne Loop-Node)
 
-- [ ] **1.5 Inspector Panel & Local File System Explorer**
-  - [ ] Rechts angedockter, kollabierbarer Inspector für den selektierten Node
-  - [ ] Lokaler Dateisystem-Browser (liest Pfade & `.md`-Dateien sicher über Backend-API)
-  - [ ] Live-Anzeige der geschätzten Token-Verteilung (System Prompt, RAG Context, Tool Output)
+- [x] **1.5 Inspector Panel & Local File System Explorer**
+  - [x] Rechts angedockter, kollabierbarer Inspector für den selektierten Node
+  - [x] Lokaler Dateisystem-Browser (liest Pfade & `.md`-Dateien sicher über Backend-API)
+  - [x] Live-Anzeige der geschätzten Token-Verteilung (System Prompt, RAG Context, Tool Output)
 
-- [ ] **1.6 Graph Validation Engine (Frontend & Backend)**
-  - [ ] Dreistufige Validierung: `Error` (blockiert Run/Export), `Warning` (gelber Badge, blockiert Export standardmäßig), `Info`
-  - [ ] Validierungsregeln:
-    - [ ] Genau 1 Start- und 1 Output-Node vorhanden
-    - [ ] Keine verwaisten/unerreichbaren Nodes
-    - [ ] Jeder Loop-Node hat gültige Condition + Pflicht-Fallback-Zweig
-    - [ ] Alle referenzierten Dateien (`agents.md`, LanceDB, Tool-Skripte) existieren im Workspace
-  - [ ] Visuelle rote/gelbe Markierung fehlerhafter Nodes & Kanten direkt im Canvas
+- [x] **1.6 Graph Validation Engine (Frontend & Backend)**
+  - [x] Dreistufige Validierung: `Error` (blockiert Run/Export), `Warning` (gelber Badge, blockiert Export standardmäßig), `Info`
+  - [x] Validierungsregeln:
+    - [x] Genau 1 Start- und 1 Output-Node vorhanden
+    - [x] Keine verwaisten/unerreichbaren Nodes
+    - [x] Jeder Loop-Node hat gültige Condition + Pflicht-Fallback-Zweig
+    - [x] Alle referenzierten Dateien (`agents.md`, LanceDB, Tool-Skripte) existieren im Workspace
+  - [x] Visuelle rote/gelbe Markierung fehlerhafter Nodes & Kanten direkt im Canvas
 
-- [ ] **1.7 Canvas State Management (Zustand) & Recovery**
-  - [ ] `useGraphStore` für Nodes, Edges, Selektion, History-Stack (Undo/Redo)
-  - [ ] Auto-Save im `localStorage` für Crash-Recovery (ohne Ausführungsberechtigung)
-  - [ ] Expliziter "Save"-Button für `.forge.json` ins Workspace-Verzeichnis
+- [x] **1.7 Canvas State Management (Zustand) & Recovery**
+  - [x] `useGraphStore` für Nodes, Edges, Selektion, History-Stack (Undo/Redo)
+  - [x] Auto-Save im `localStorage` für Crash-Recovery (ohne Ausführungsberechtigung)
+  - [x] Expliziter "Save"-Button für `.forge.json` ins Workspace-Verzeichnis
 
 ---
 
