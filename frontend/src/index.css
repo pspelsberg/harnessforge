@@ -6,3 +6,5 @@ button,input{margin:4px;padding:6px} nav{padding:8px;background:var(--color-forg
 .forge-edge-active{animation:edge-flow .8s linear infinite}@keyframes edge-flow{to{stroke-dashoffset:-12}}
 
 .forge-node-warning{border-color:var(--color-forge-yellow)}
+.forge-edge-particle{offset-rotate:0deg;animation:forge-particle 1s linear infinite;filter:drop-shadow(0 0 4px #fcd34d)}
+@keyframes forge-particle{to{offset-distance:100%}}
