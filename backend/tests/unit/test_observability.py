@@ -71,3 +71,14 @@ def test_run_list_pagination_is_bounded(tmp_path):
 
 def test_retention_purge_removes_checkpoints(tmp_path):
     store=RunStore(tmp_path/"runs.db"); asyncio.run(store.initialize()); asyncio.run(store.create_run("old")); asyncio.run(store.save_checkpoint("old",1,{"secret":"x"})); asyncio.run(store.purge_before("9999-01-01 00:00:00")); assert asyncio.run(store.list_checkpoints("old"))==[]
+
+
+def test_run_store_tracks_bounded_lifecycle_status(tmp_path):
+    store=RunStore(tmp_path/"runs.db"); asyncio.run(store.initialize()); asyncio.run(store.create_run("r1"))
+    assert asyncio.run(store.get_run_status("r1")) == "created"
+    asyncio.run(store.update_run_status("r1", "validating"))
+    asyncio.run(store.update_run_status("r1", "running"))
+    asyncio.run(store.update_run_status("r1", "cancelled"))
+    assert asyncio.run(store.get_run_status("r1")) == "cancelled"
+    with __import__("pytest").raises(ValueError): asyncio.run(store.update_run_status("r1", "unknown"))
+    with __import__("pytest").raises(ValueError): asyncio.run(store.update_run_status("r1", "running"))

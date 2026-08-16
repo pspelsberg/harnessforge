@@ -72,3 +72,12 @@ def test_loop_conditions_support_nested_keys_and_numeric_operators():
     state.custom_state["empty"] = None
     assert GraphRunner._condition(state, {"condition_type": "exists", "key": "custom_state.empty"})
     assert not GraphRunner._condition(state, {"condition_type": "number", "key": "iteration", "operator": "unknown", "value": 3})
+
+
+@pytest.mark.asyncio
+async def test_invalid_graph_emits_terminal_failure_event():
+    graph=g([n("s","start"),n("o","output")],[])
+    events=[]
+    result=await GraphRunner(graph,event_sink=events.append).run()
+    assert result.status is RunState.FAILED
+    assert [event["type"] for event in events][-1] == "run.failed"

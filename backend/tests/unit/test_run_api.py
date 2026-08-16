@@ -45,8 +45,11 @@ def test_run_api_persists_lifecycle_events(tmp_path):
     payload=graph_payload(); payload["settings"]["review_only"]=False
     response=c.post("/api/run",json={"graph":payload,"query":"hello"},headers=h)
     assert response.status_code==200 and isinstance(response.json()["run_id"],str)
-    events=c.get(f"/api/runs/{response.json()['run_id']}/events",headers=h).json()["events"]
+    run_id=response.json()["run_id"]
+    events=c.get(f"/api/runs/{run_id}/events",headers=h).json()["events"]
     assert events[0]["type"]=="run.created" and events[1]["type"]=="run.validating" and events[-1]["type"]=="run.succeeded"
+    runs=c.get("/api/runs",headers=h).json()["runs"]
+    assert next(run for run in runs if run["id"]==run_id)["status"]=="succeeded"
 
 
 def test_run_api_rejects_when_process_run_is_active(tmp_path):

@@ -6,6 +6,17 @@ from datetime import datetime, timedelta, timezone
 import aiosqlite
 from app.features.observability.events import Event, redact_event
 
+_RUN_STATUSES = frozenset({"created", "validating", "running", "succeeded", "failed", "cancelled", "limit_exceeded"})
+_RUN_TRANSITIONS = {
+    "created": frozenset({"created", "validating", "failed"}),
+    "validating": frozenset({"validating", "running", "failed"}),
+    "running": frozenset({"running", "succeeded", "failed", "cancelled", "limit_exceeded"}),
+    "succeeded": frozenset({"succeeded"}),
+    "failed": frozenset({"failed"}),
+    "cancelled": frozenset({"cancelled"}),
+    "limit_exceeded": frozenset({"limit_exceeded"}),
+}
+
 class RunStore:
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -21,7 +32,12 @@ class RunStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         async with self._connect() as db:
             await db.execute("PRAGMA journal_mode=WAL")
-            await db.execute("CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, created_at TEXT NOT NULL)")
+            await db.execute("CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'created')")
+            # Keep local MVP databases created by older versions readable.
+            try:
+                await db.execute("ALTER TABLE runs ADD COLUMN status TEXT NOT NULL DEFAULT 'created'")
+            except aiosqlite.OperationalError:
+                pass
             await db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, type TEXT NOT NULL, payload TEXT NOT NULL, FOREIGN KEY(run_id) REFERENCES runs(id) ON DELETE CASCADE)")
             await db.execute("CREATE TABLE IF NOT EXISTS checkpoints (id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, step INTEGER NOT NULL, payload TEXT NOT NULL, FOREIGN KEY(run_id) REFERENCES runs(id) ON DELETE CASCADE)")
             await db.execute("CREATE INDEX IF NOT EXISTS idx_events_run_id ON events(run_id,id)")
@@ -35,18 +51,37 @@ class RunStore:
         if not isinstance(run_id,str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}",run_id):
             raise ValueError("invalid run id")
         async with self._connect() as db:
-            await db.execute("INSERT INTO runs VALUES (?,datetime('now'))", (run_id,))
+            await db.execute("INSERT INTO runs(id,created_at,status) VALUES (?,datetime('now'),'created')", (run_id,))
             await db.commit()
 
     async def list_runs(self, *, limit: int = 100, offset: int = 0) -> list[dict]:
         if not 1 <= limit <= 1000 or offset < 0: raise ValueError("invalid run pagination")
         async with self._connect() as db:
-            cursor=await db.execute("SELECT id,created_at FROM runs ORDER BY created_at,id LIMIT ? OFFSET ?",(limit,offset)); rows=await cursor.fetchall()
-        return [{"id":row[0],"created_at":row[1]} for row in rows]
+            cursor=await db.execute("SELECT id,created_at,status FROM runs ORDER BY created_at,id LIMIT ? OFFSET ?",(limit,offset)); rows=await cursor.fetchall()
+        return [{"id":row[0],"created_at":row[1],"status":row[2]} for row in rows]
 
     async def exists_run(self, run_id: str) -> bool:
         async with self._connect() as db:
             cursor=await db.execute("SELECT 1 FROM runs WHERE id=?",(run_id,)); return await cursor.fetchone() is not None
+
+    async def get_run_status(self, run_id: str) -> str | None:
+        async with self._connect() as db:
+            cursor=await db.execute("SELECT status FROM runs WHERE id=?", (run_id,))
+            row=await cursor.fetchone()
+        return row[0] if row else None
+
+    async def update_run_status(self, run_id: str, status: str) -> None:
+        if status not in _RUN_STATUSES:
+            raise ValueError("invalid run status")
+        async with self._connect() as db:
+            cursor=await db.execute("SELECT status FROM runs WHERE id=?", (run_id,))
+            row=await cursor.fetchone()
+            if row is None:
+                raise ValueError("run does not exist")
+            if status not in _RUN_TRANSITIONS[row[0]]:
+                raise ValueError("invalid run status transition")
+            await db.execute("UPDATE runs SET status=? WHERE id=?", (status, run_id))
+            await db.commit()
 
     async def save_checkpoint(self, run_id: str, step: int, payload: dict):
         import json

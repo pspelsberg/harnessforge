@@ -36,8 +36,10 @@ class GraphRunner:
         self._event("run.validating")
         validation=validate_graph(self.graph)
         if not validation.valid:
+            error="; ".join(i.message for i in validation.errors)
+            self._event("run.failed", error=error[:256])
             type(self)._active=False
-            return RunResult(RunState.FAILED,state,"; ".join(i.message for i in validation.errors))
+            return RunResult(RunState.FAILED,state,error)
         self._event("run.running"); current=next(n.id for n in self.graph.nodes if n.type=="start"); steps=0; loop_counts: dict[str,int]={}
         try:
             while self.nodes[current].type != "output":
