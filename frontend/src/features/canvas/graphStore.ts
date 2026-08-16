@@ -5,10 +5,11 @@ export type ForgeNode = { id:string; type:NodeType; position:{x:number;y:number}
 export type ForgeEdge = { id:string; source:string; target:string; sourceHandle?:string; targetHandle?:string };
 export type ValidationIssue={severity:"error"|"warning"|"info";message:string;nodeId?:string};
 export const MAX_NODES=50; export const MAX_EDGES=200; export const RECOVERY_KEY="harnessforge.graph.recovery";
-export function importGraphJson(raw:string): {nodes:ForgeNode[];edges:ForgeEdge[];reviewOnly:true} {
+export function importGraphJson(raw:string): {name?:string;nodes:ForgeNode[];edges:ForgeEdge[];reviewOnly:true} {
   if(raw.length>2_000_000) throw new Error("graph payload too large"); let parsed:unknown; try{parsed=JSON.parse(raw)}catch{throw new Error("invalid graph JSON")};
   if(!parsed||typeof parsed!=="object"||((parsed as {schema_version?:unknown}).schema_version!=="1")||!Array.isArray((parsed as {nodes?:unknown}).nodes)||!Array.isArray((parsed as {edges?:unknown}).edges)) throw new Error("invalid graph shape");
-  const graph=parsed as {nodes:unknown[];edges:unknown[]}; if(graph.nodes.length>MAX_NODES||graph.edges.length>MAX_EDGES) throw new Error("graph limits exceeded");
+  const graph=parsed as {name?:unknown;nodes:unknown[];edges:unknown[]}; if(graph.nodes.length>MAX_NODES||graph.edges.length>MAX_EDGES) throw new Error("graph limits exceeded");
+  const name=typeof graph.name==="string"&&graph.name.length<=128?graph.name:undefined;
   const types=new Set<NodeType>(["start","llm","rag","loop","reducer","tool","output"]);
   const validateJson=(value:unknown,depth=0):void=>{if(depth>8)throw new Error("value nesting is too deep");if(value===null||typeof value==="boolean"||(typeof value==="string"&&new TextEncoder().encode(value).byteLength<=128*1024)||(typeof value==="number"&&Number.isFinite(value)))return;if(Array.isArray(value)){if(value.length>128)throw new Error("list too large");value.forEach(v=>validateJson(v,depth+1));return}if(typeof value==="object"){const entries=Object.entries(value as Record<string,unknown>);if(entries.length>64)throw new Error("object too large");entries.forEach(([key,v])=>{if(key.length>128)throw new Error("key too long");validateJson(v,depth+1)});return}throw new Error("invalid JSON value")};
   const containsForbiddenKey=(value:unknown):boolean=>{
@@ -19,7 +20,7 @@ export function importGraphJson(raw:string): {nodes:ForgeNode[];edges:ForgeEdge[
   const nodes=graph.nodes.map((node):ForgeNode=>{if(!node||typeof node!=="object")throw new Error("invalid node");const n=node as Partial<ForgeNode>;if(typeof n.id!=="string"||!/^[A-Za-z0-9._-]{1,128}$/.test(n.id)||!types.has(n.type as NodeType)||!n.position||typeof n.position.x!=="number"||typeof n.position.y!=="number"||!Number.isFinite(n.position.x)||!Number.isFinite(n.position.y)||Math.abs(n.position.x)>1000000||Math.abs(n.position.y)>1000000||!n.data||typeof n.data!=="object")throw new Error("invalid node");const data=n.data as Partial<ForgeNode["data"]>;if(!data.config||!data.ui||typeof data.config!=="object"||Array.isArray(data.config)||typeof data.ui!=="object"||Array.isArray(data.ui))throw new Error("invalid node data");if(containsForbiddenKey(data.config))throw new Error("secret-shaped configuration is forbidden");validateJson(data.config);validateJson(data.ui);return n as ForgeNode});
   if(new Set(nodes.map(n=>n.id)).size!==nodes.length) throw new Error("duplicate node id"); const ids=new Set(nodes.map(n=>n.id));
   const edges=graph.edges.map((edge):ForgeEdge=>{if(!edge||typeof edge!=="object")throw new Error("invalid edge");const e=edge as Partial<ForgeEdge>;if(typeof e.id!=="string"||!/^[A-Za-z0-9._-]{1,128}$/.test(e.id)||typeof e.source!=="string"||typeof e.target!=="string"||!ids.has(e.source)||!ids.has(e.target))throw new Error("invalid edge");if(e.sourceHandle!==undefined&&(typeof e.sourceHandle!=="string"||e.sourceHandle.length>64)||e.targetHandle!==undefined&&(typeof e.targetHandle!=="string"||e.targetHandle.length>64))throw new Error("invalid edge handle");return e as ForgeEdge});
-  if(new Set(edges.map(e=>e.id)).size!==edges.length) throw new Error("duplicate edge id"); return {nodes,edges,reviewOnly:true};
+  if(new Set(edges.map(e=>e.id)).size!==edges.length) throw new Error("duplicate edge id"); return {name,nodes,edges,reviewOnly:true};
 }
 export function validateGraph(nodes:ForgeNode[],edges:ForgeEdge[]):ValidationIssue[]{
  const issues:ValidationIssue[]=[];
@@ -58,6 +59,149 @@ export function validateGraph(nodes:ForgeNode[],edges:ForgeEdge[]):ValidationIss
  }
  return issues;
 }
-type Snapshot={nodes:ForgeNode[];edges:ForgeEdge[]}; type GraphState=Snapshot&{reviewOnly:boolean;externalDataflowActivated:boolean;selectedNodeId:string|null;history:Snapshot[];future:Snapshot[];setSelected:(id:string|null)=>void;updateConfig:(id:string,config:Record<string,unknown>)=>boolean;setExternalDataflow:(value:boolean)=>void;setGraph:(nodes:ForgeNode[],edges:ForgeEdge[])=>void;addNode:(type:NodeType)=>ForgeNode|null;connectNodes:(source:string,target:string,sourceHandle?:string)=>boolean;removeNode:(id:string)=>boolean;updatePosition:(id:string,position:{x:number;y:number})=>boolean;setNodeStatus:(id:string,status:"idle"|"running"|"success"|"error")=>boolean;duplicateNode:(id:string)=>ForgeNode|null;deleteSelected:()=>boolean;undo:()=>void;redo:()=>void;setReviewOnly:(value:boolean)=>void;recover:()=>void};
+type Snapshot={nodes:ForgeNode[];edges:ForgeEdge[]};
+type GraphState=Snapshot&{
+  reviewOnly:boolean;
+  externalDataflowActivated:boolean;
+  selectedNodeId:string|null;
+  selectedEdgeId:string|null;
+  history:Snapshot[];
+  future:Snapshot[];
+  setSelected:(id:string|null)=>void;
+  setSelectedEdge:(id:string|null)=>void;
+  updateConfig:(id:string,config:Record<string,unknown>)=>boolean;
+  setExternalDataflow:(value:boolean)=>void;
+  setGraph:(nodes:ForgeNode[],edges:ForgeEdge[])=>void;
+  addNode:(type:NodeType)=>ForgeNode|null;
+  connectNodes:(source:string,target:string,sourceHandle?:string)=>boolean;
+  removeNode:(id:string)=>boolean;
+  removeEdge:(id:string)=>boolean;
+  updatePosition:(id:string,position:{x:number;y:number})=>boolean;
+  setNodeStatus:(id:string,status:"idle"|"running"|"success"|"error")=>boolean;
+  duplicateNode:(id:string)=>ForgeNode|null;
+  deleteSelected:()=>boolean;
+  undo:()=>void;
+  redo:()=>void;
+  setReviewOnly:(value:boolean)=>void;
+  recover:()=>void;
+};
+
 const snap=()=>{const s=useGraphStore.getState();return {nodes:s.nodes,edges:s.edges}};
-export const useGraphStore=create<GraphState>((set,get)=>({nodes:[],edges:[],reviewOnly:true,externalDataflowActivated:false,selectedNodeId:null,history:[],future:[],setGraph:(nodes,edges)=>{const current=snap();set({nodes,edges,externalDataflowActivated:false,history:[...get().history,current].slice(-50),future:[]});try{localStorage.setItem(RECOVERY_KEY,JSON.stringify({schema_version:"1",nodes,edges}))}catch{}},addNode:(type)=>{const state=get();if(state.nodes.length>=MAX_NODES)return null;const base=`${type}-${Date.now()}`;let id=base;let suffix=1;while(state.nodes.some(node=>node.id===id))id=`${base}-${suffix++}`;const node:ForgeNode={id,type,position:{x:100+state.nodes.length*20,y:100+state.nodes.length*20},data:{config:{},ui:{}}};state.setGraph([...state.nodes,node],state.edges);return node},connectNodes:(source,target,sourceHandle)=>{const state=get();const sourceNode=state.nodes.find(node=>node.id===source),targetNode=state.nodes.find(node=>node.id===target);if(!sourceNode||!targetNode||!canConnect(sourceNode,targetNode,state.edges)||state.edges.length>=MAX_EDGES||state.edges.some(edge=>edge.source===source&&edge.target===target&&edge.sourceHandle===sourceHandle))return false;const next=[...state.edges,{id:`edge-${Date.now()}-${state.edges.length}`,source,target,sourceHandle}];state.setGraph(state.nodes,next);return true},removeNode:(id)=>{const state=get();if(!state.nodes.some(node=>node.id===id))return false;state.setGraph(state.nodes.filter(node=>node.id!==id),state.edges.filter(edge=>edge.source!==id&&edge.target!==id));if(state.selectedNodeId===id)set({selectedNodeId:null});return true},setNodeStatus:(id,status)=>{const state=get();if(!state.nodes.some(node=>node.id===id))return false;set({nodes:state.nodes.map(node=>node.id===id?{...node,data:{...node.data,ui:{...node.data.ui,status}}}:node)});return true},duplicateNode:(id)=>{const state=get();const original=state.nodes.find(node=>node.id===id);if(!original||state.nodes.length>=MAX_NODES)return null;const copy={...original,id:`${original.id}-copy-${Date.now()}`,position:{x:original.position.x+40,y:original.position.y+40},data:{config:{...original.data.config},ui:{...original.data.ui}}};state.setGraph([...state.nodes,copy],state.edges);return copy},deleteSelected:()=>{const id=get().selectedNodeId;return id?get().removeNode(id):false},updatePosition:(id,position)=>{const state=get();if(!Number.isFinite(position.x)||!Number.isFinite(position.y)||Math.abs(position.x)>1000000||Math.abs(position.y)>1000000)return false;const nodes=state.nodes.map(node=>node.id===id?{...node,position}:node);if(nodes.every((node,index)=>node===state.nodes[index]))return false;state.setGraph(nodes,state.edges);return true},undo:()=>{const h=get().history;if(!h.length)return;const current=snap();const previous=h[h.length-1];set({nodes:previous.nodes,edges:previous.edges,externalDataflowActivated:false,history:h.slice(0,-1),future:[...get().future,current]})},redo:()=>{const f=get().future;if(!f.length)return;const current=snap();const next=f[f.length-1];set({nodes:next.nodes,edges:next.edges,externalDataflowActivated:false,history:[...get().history,current],future:f.slice(0,-1)})},setReviewOnly:(reviewOnly)=>set({reviewOnly}),setExternalDataflow:(externalDataflowActivated)=>set({externalDataflowActivated}),setSelected:(selectedNodeId)=>set({selectedNodeId}),updateConfig:(id,config)=>{const state=get();if(!state.nodes.some(node=>node.id===id))return false;state.setGraph(state.nodes.map(node=>node.id===id?{...node,data:{...node.data,config}}:node),state.edges);return true},recover:()=>{try{const raw=localStorage.getItem(RECOVERY_KEY);if(raw){const g=importGraphJson(raw);set({nodes:g.nodes,edges:g.edges,reviewOnly:true,externalDataflowActivated:false})}}catch{}}}));
+
+export const useGraphStore=create<GraphState>((set,get)=>({
+  nodes:[],
+  edges:[],
+  reviewOnly:true,
+  externalDataflowActivated:false,
+  selectedNodeId:null,
+  selectedEdgeId:null,
+  history:[],
+  future:[],
+  setGraph:(nodes,edges)=>{
+    const current=snap();
+    set({nodes,edges,externalDataflowActivated:false,history:[...get().history,current].slice(-50),future:[]});
+    try{localStorage.setItem(RECOVERY_KEY,JSON.stringify({schema_version:"1",nodes,edges}))}catch{}
+  },
+  addNode:(type)=>{
+    const state=get();
+    if(state.nodes.length>=MAX_NODES)return null;
+    const base=`${type}-${Date.now()}`;
+    let id=base;
+    let suffix=1;
+    while(state.nodes.some(node=>node.id===id))id=`${base}-${suffix++}`;
+    const node:ForgeNode={id,type,position:{x:100+state.nodes.length*20,y:100+state.nodes.length*20},data:{config:{},ui:{}}};
+    state.setGraph([...state.nodes,node],state.edges);
+    return node;
+  },
+  connectNodes:(source,target,sourceHandle)=>{
+    const state=get();
+    const sourceNode=state.nodes.find(node=>node.id===source),targetNode=state.nodes.find(node=>node.id===target);
+    if(!sourceNode||!targetNode||!canConnect(sourceNode,targetNode,state.edges)||state.edges.length>=MAX_EDGES||state.edges.some(edge=>edge.source===source&&edge.target===target&&edge.sourceHandle===sourceHandle))return false;
+    const next=[...state.edges,{id:`edge-${Date.now()}-${state.edges.length}`,source,target,sourceHandle}];
+    state.setGraph(state.nodes,next);
+    return true;
+  },
+  removeNode:(id)=>{
+    const state=get();
+    if(!state.nodes.some(node=>node.id===id))return false;
+    state.setGraph(state.nodes.filter(node=>node.id!==id),state.edges.filter(edge=>edge.source!==id&&edge.target!==id));
+    if(state.selectedNodeId===id)set({selectedNodeId:null});
+    return true;
+  },
+  removeEdge:(id)=>{
+    const state=get();
+    if(!state.edges.some(edge=>edge.id===id))return false;
+    state.setGraph(state.nodes,state.edges.filter(edge=>edge.id!==id));
+    if(state.selectedEdgeId===id)set({selectedEdgeId:null});
+    return true;
+  },
+  setNodeStatus:(id,status)=>{
+    const state=get();
+    if(!state.nodes.some(node=>node.id===id))return false;
+    set({nodes:state.nodes.map(node=>node.id===id?{...node,data:{...node.data,ui:{...node.data.ui,status}}}:node)});
+    return true;
+  },
+  duplicateNode:(id)=>{
+    const state=get();
+    const original=state.nodes.find(node=>node.id===id);
+    if(!original||state.nodes.length>=MAX_NODES)return null;
+    const copy={...original,id:`${original.id}-copy-${Date.now()}`,position:{x:original.position.x+40,y:original.position.y+40},data:{config:{...original.data.config},ui:{...original.data.ui}}};
+    state.setGraph([...state.nodes,copy],state.edges);
+    return copy;
+  },
+  deleteSelected:()=>{
+    const {selectedNodeId,selectedEdgeId}=get();
+    if(selectedNodeId)return get().removeNode(selectedNodeId);
+    if(selectedEdgeId)return get().removeEdge(selectedEdgeId);
+    return false;
+  },
+  updatePosition:(id,position)=>{
+    const state=get();
+    if(!Number.isFinite(position.x)||!Number.isFinite(position.y)||Math.abs(position.x)>1000000||Math.abs(position.y)>1000000)return false;
+    let changed=false;
+    const nodes=state.nodes.map(node=>{
+      if(node.id===id){
+        if(node.position.x===position.x&&node.position.y===position.y)return node;
+        changed=true;
+        return {...node,position};
+      }
+      return node;
+    });
+    if(!changed)return false;
+    set({nodes});
+    return true;
+  },
+  undo:()=>{
+    const h=get().history;
+    if(!h.length)return;
+    const current=snap();
+    const previous=h[h.length-1];
+    set({nodes:previous.nodes,edges:previous.edges,externalDataflowActivated:false,history:h.slice(0,-1),future:[...get().future,current]});
+  },
+  redo:()=>{
+    const f=get().future;
+    if(!f.length)return;
+    const current=snap();
+    const next=f[f.length-1];
+    set({nodes:next.nodes,edges:next.edges,externalDataflowActivated:false,history:[...get().history,current],future:f.slice(0,-1)});
+  },
+  setReviewOnly:(reviewOnly)=>set({reviewOnly}),
+  setExternalDataflow:(externalDataflowActivated)=>set({externalDataflowActivated}),
+  setSelected:(selectedNodeId)=>set({selectedNodeId,selectedEdgeId:null}),
+  setSelectedEdge:(selectedEdgeId)=>set({selectedEdgeId,selectedNodeId:null}),
+  updateConfig:(id,config)=>{
+    const state=get();
+    if(!state.nodes.some(node=>node.id===id))return false;
+    state.setGraph(state.nodes.map(node=>node.id===id?{...node,data:{...node.data,config}}:node),state.edges);
+    return true;
+  },
+  recover:()=>{
+    try{
+      const raw=localStorage.getItem(RECOVERY_KEY);
+      if(raw){
+        const g=importGraphJson(raw);
+        set({nodes:g.nodes,edges:g.edges,reviewOnly:true,externalDataflowActivated:false});
+      }
+    }catch{}
+  }
+}));

@@ -36,14 +36,14 @@ class OpenAICompatibleAdapter(BaseProviderAdapter):
         async for chunk in self.stream(request, **kwargs): yield chunk
     async def stream(self, request: ProviderRequest, *, approval: DataflowApproval | None = None, bindings: list[str] | None = None, referer: str | None = None, title: str | None = None) -> AsyncIterator[CompletionChunk]:
         bindings=bindings or []
-        if self.config.kind in {ProviderKind.OPENAI,ProviderKind.OPENROUTER} and (approval is None or not approval.valid_for(self.config, bindings)):
+        if self.config.kind in {ProviderKind.OPENAI,ProviderKind.OPENROUTER,ProviderKind.MISTRAL} and (approval is None or not approval.valid_for(self.config, bindings)):
             raise ProviderError("external dataflow approval required")
         if len(json.dumps(request.messages, ensure_ascii=False).encode()) > CAPS.max_event_bytes:
             raise ProviderError("request too large")
         from app.features.providers.contracts import validate_provider_url
         validate_provider_url(self.config.base_url, self.config.kind)
-        external = self.config.kind in {ProviderKind.OPENAI,ProviderKind.OPENROUTER}
-        canonical_secret_env="OPENAI_API_KEY" if self.config.kind == ProviderKind.OPENAI else "OPENROUTER_API_KEY" if self.config.kind == ProviderKind.OPENROUTER else ""
+        external = self.config.kind in {ProviderKind.OPENAI,ProviderKind.OPENROUTER,ProviderKind.MISTRAL}
+        canonical_secret_env="OPENAI_API_KEY" if self.config.kind == ProviderKind.OPENAI else "OPENROUTER_API_KEY" if self.config.kind == ProviderKind.OPENROUTER else "MISTRAL_API_KEY" if self.config.kind == ProviderKind.MISTRAL else ""
         key=os.environ.get(canonical_secret_env) if external else None
         if external and not key:
             raise ProviderError("provider secret is unavailable")

@@ -48,3 +48,7 @@ def test_external_provider_endpoint_path_and_port_are_fixed():
     with pytest.raises(ProviderConfigError): validate_provider_url("https://api.openai.com:8443/v1", ProviderKind.OPENAI)
     with pytest.raises(ProviderConfigError): validate_provider_url("https://api.openai.com/v1/other", ProviderKind.OPENAI)
     with pytest.raises(ProviderConfigError): validate_provider_url("https://openrouter.ai/api/v1/other", ProviderKind.OPENROUTER)
+    with pytest.raises(ProviderConfigError): validate_provider_url("https://api.mistral.ai/v2", ProviderKind.MISTRAL)
+    assert validate_provider_url("https://api.mistral.ai/v1", ProviderKind.MISTRAL).hostname == "api.mistral.ai"
+    cfg = ProviderConfig(kind=ProviderKind.MISTRAL, base_url="https://api.mistral.ai/v1", model="codestral-latest", timeout_seconds=15)
+    assert cfg.secret_env == "MISTRAL_API_KEY"

@@ -44,3 +44,26 @@ def test_graph_save_rejects_missing_parent_and_non_forge_extension(tmp_path):
 
 def test_graph_save_rejects_oversized_graph_config(tmp_path):
     c=TestClient(create_app(session_value="test-session",workspace=tmp_path)); payload=graph_payload(); payload["nodes"][0]["data"]["config"]={"x":"a"*2000000}; r=c.post("/api/graph",json={"path":"large.forge.json","graph":payload},headers={"host":"127.0.0.1","x-harnessforge-token":"test-session"}); assert r.status_code in {413,422}
+
+def test_graph_generate_endpoint_creates_valid_graph(tmp_path):
+    client=TestClient(create_app(session_value="test-session", workspace=tmp_path))
+    headers={"host":"127.0.0.1","x-harnessforge-token":"test-session"}
+    response=client.post("/api/graph/generate",json={"prompt":"Erstelle einen ReAct Coding Loop mit Pytest","model":"qwen2.5-coder:32b"},headers=headers)
+    assert response.status_code == 200
+    data=response.json()
+    assert data["schema_version"] == "1"
+    assert len(data["nodes"]) >= 3
+    assert len(data["edges"]) >= 2
+    assert any(n["type"] == "start" for n in data["nodes"])
+    assert any(n["type"] == "output" for n in data["nodes"])
+
+def test_graph_generate_creates_rag_node_and_valid_loop(tmp_path):
+    client=TestClient(create_app(session_value="test-session", workspace=tmp_path))
+    headers={"host":"127.0.0.1","x-harnessforge-token":"test-session"}
+    response=client.post("/api/graph/generate",json={"prompt":"RAG Query Agent with LanceDB and validation loop","model":"codestral-latest"},headers=headers)
+    assert response.status_code == 200
+    data=response.json()
+    assert any(n["type"] == "rag" for n in data["nodes"])
+    rag_node = next(n for n in data["nodes"] if n["type"] == "rag")
+    assert rag_node["data"]["config"]["path"] == ".lancedb"
+    assert isinstance(rag_node["data"]["config"]["vector"], list)

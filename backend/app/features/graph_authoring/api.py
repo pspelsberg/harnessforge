@@ -15,9 +15,24 @@ class GraphWriteRequest(BaseModel):
     path: str=Field(min_length=1,max_length=4096)
     graph: ForgeGraph
 
+class GraphGenerateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    prompt: str = Field(min_length=1, max_length=4096)
+    model: str | None = Field(default="qwen2.5-coder:32b", max_length=128)
+
 def router_for(workspace: Path)->APIRouter:
     router=APIRouter()
     boundary=WorkspaceBoundary(workspace)
+
+    @router.post("/api/graph/generate")
+    async def generate_graph(request: GraphGenerateRequest):
+        from app.features.graph_authoring.generator import generate_graph_from_prompt
+        try:
+            graph = await generate_graph_from_prompt(request.prompt, request.model or "qwen2.5-coder:32b")
+            return graph
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=f"graph generation failed: {str(exc)}") from exc
+
     @router.post("/api/graph",status_code=201)
     async def save_graph(request: GraphWriteRequest):
         try:

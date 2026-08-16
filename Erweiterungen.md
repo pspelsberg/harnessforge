@@ -34,6 +34,14 @@ HarnessForge ist durch seinen flexiblen Adaptervertrag und OpenRouter-Support f�
   * **GPT-5.6 Terra** — Riesen-Kontextfenster und High-Throughput Systemarchitektur.
   * **GPT-5.6 Sol** — Ultra-schnelle Ausführung mit minimaler Latenz für Worker-Subagenten.
   * **GPT-4o / o3-mini** — Bewährte Standard-Engines.
+* **Mistral AI Tier (Nativ & via API):**
+  * **Codestral (`codestral-latest`)** — Führender Coding-Spezialist mit Fill-In-The-Middle (FIM) und 256k Kontext für Software-Architektur und Agenten.
+  * **Mistral Large 2 / 3 (`mistral-large-latest`)** — Flaggschiff für komplexes Reasoning, Tool-Calling und autonome Agentic Workflows.
+  * **Mistral Medium 3.5 (`mistral-medium-latest`)** — Frontier-Class multimodales Modell optimiert für Coding und Agenten.
+  * **Mistral Small 3 / 4 (`mistral-small-latest` / `mistral-small:24b`)** — Rasant schnelles Hybrid-Modell für Instruct, Reasoning und Code.
+  * **Ministral 8B & 3B (`ministral-8b-latest`, `ministral-3b-latest`)** — Kompakte High-Performance-Modelle für schnelle Worker-Subagenten.
+  * **Mistral NeMo (`open-mistral-nemo`)** — 12B Open-Weights Modell mit 128k Kontextfenster.
+  * **Pixtral Large (`pixtral-large-latest`)** — Multimodales Vision-Modell für UI-Mockup- und Architektur-Diagramm-Analysen.
 * **Google DeepMind Tier:**
   * **Gemini 3.7 Flash** — Hybrid-Thinking mit rasanter Token-Geschwindigkeit, ideal für RLM-REPL-Subcalls.
   * **Gemini 3.7 Pro** — Multimodale und tiefgehende Codebase-Analysen.

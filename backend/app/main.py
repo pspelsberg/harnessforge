@@ -48,6 +48,7 @@ from app.features.coding_harness.api import router_for as harness_router_for
 from app.features.coding_harness.service import CodingHarnessService
 from app.features.rlm.api import router_for as rlm_router_for
 from app.features.rlm.spawner import DisabledSubAgentPort, RlmSpawner
+from app.features.providers.settings_api import router_for as provider_settings_router_for
 
 _ALLOWED_HOSTS={"127.0.0.1","localhost"}
 _ALLOWED_ORIGINS={"http://127.0.0.1:5173","http://localhost:5173"}
@@ -277,6 +278,8 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     async def health(): return {"status":"ok"}
     @app.get("/ready")
     async def ready(): return {"status":"ready","localhost_only":True,"telemetry":False}
+    @app.get("/api/session/token")
+    async def session_token(): return {"token": token.value}
     app.include_router(router_for(workspace or Path.cwd()), dependencies=[Depends(auth)])
     app.include_router(workspace_router_for(workspace or Path.cwd()), dependencies=[Depends(auth)])
     app.state.repl_manager=repl_manager
@@ -296,6 +299,7 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     app.include_router(index_router_for(index_service), dependencies=[Depends(auth)])
     app.include_router(harness_router_for(harness_service), dependencies=[Depends(auth)])
     app.include_router(rlm_router_for(rlm_spawner), dependencies=[Depends(auth)])
+    app.include_router(provider_settings_router_for(Path(workspace or Path.cwd())), dependencies=[Depends(auth)])
     @app.post("/api/run")
     async def run_graph(request:RunRequest, _: None = Depends(auth)):
         try:

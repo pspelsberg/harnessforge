@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from app.core.config import CAPS
 class ProviderConfigError(ValueError): pass
-class ProviderKind(StrEnum): OLLAMA="ollama"; LOCAL_OPENAI="local_openai"; OPENAI="openai"; OPENROUTER="openrouter"
+class ProviderKind(StrEnum): OLLAMA="ollama"; LOCAL_OPENAI="local_openai"; OPENAI="openai"; OPENROUTER="openrouter"; MISTRAL="mistral"
 
 def validate_provider_url(value: str, kind: ProviderKind):
     parsed=urlparse(value)
@@ -28,6 +28,9 @@ def validate_provider_url(value: str, kind: ProviderKind):
     if kind==ProviderKind.OPENROUTER:
         if host!="openrouter.ai" or parsed.scheme!="https" or parsed.port not in {None,443} or parsed.path.rstrip("/")!="/api/v1":
             raise ProviderConfigError("OpenRouter endpoint is fixed")
+    if kind==ProviderKind.MISTRAL:
+        if host!="api.mistral.ai" or parsed.scheme!="https" or parsed.port not in {None,443} or parsed.path.rstrip("/")!="/v1":
+            raise ProviderConfigError("Mistral endpoint is fixed")
     if not is_loopback and parsed.scheme!="https": raise ProviderConfigError("external providers require TLS")
     return parsed
 class ProviderConfig(BaseModel):
@@ -44,13 +47,14 @@ class ProviderConfig(BaseModel):
         if update: data.update(update)
         if data.get("kind") == ProviderKind.OPENAI: data["secret_env"]=""
         elif data.get("kind") == ProviderKind.OPENROUTER: data["secret_env"]=""
+        elif data.get("kind") == ProviderKind.MISTRAL: data["secret_env"]=""
         else: data["secret_env"]=""
         return type(self).model_validate(data)
 
     @model_validator(mode="after")
     def validate_endpoint_and_secret_policy(self):
         validate_provider_url(self.base_url, self.kind)
-        expected = "OPENAI_API_KEY" if self.kind == ProviderKind.OPENAI else "OPENROUTER_API_KEY" if self.kind == ProviderKind.OPENROUTER else ""
+        expected = "OPENAI_API_KEY" if self.kind == ProviderKind.OPENAI else "OPENROUTER_API_KEY" if self.kind == ProviderKind.OPENROUTER else "MISTRAL_API_KEY" if self.kind == ProviderKind.MISTRAL else ""
         if self.secret_env not in {"", expected}:
             raise ProviderConfigError("secret_env is provider-controlled")
         object.__setattr__(self, "secret_env", expected)
