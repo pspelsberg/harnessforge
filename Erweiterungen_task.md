@@ -402,10 +402,10 @@ features/workspace_indexer/
 
 ## Frontend-/Test-Tasks
 
-- [ ] Indexstatus, Queue, letzte Synchronisierung, Fehler und Pause/Resume anzeigen.
-- [ ] Vitest für Status, Debounce, Exclude-Regeln und Fehlerzustände schreiben.
-- [ ] Symlink-/Traversal-/Binary-/Large-file-/rapid-change-Regressionen ergänzen.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] Indexstatus, Queue, letzte Synchronisierung, Fehler und Pause/Resume anzeigen.
+- [x] Vitest für Status, Debounce, Exclude-Regeln und Fehlerzustände schreiben.
+- [x] Symlink-/Traversal-/Binary-/Large-file-/rapid-change-Regressionen ergänzen.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 
