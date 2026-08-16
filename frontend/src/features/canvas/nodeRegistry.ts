@@ -5,7 +5,7 @@ export const NODE_LABELS: Record<NodeType, string> = {
   llm: "LLM Call",
   rag: "RAG / LanceDB",
   loop: "Loop / Router",
-  reducer: "State Reducer",
+  reducer: "Set Variable (State)",
   tool: "Tool (Local Trust)",
   output: "Output",
 };
@@ -25,7 +25,7 @@ export const NODE_DESCRIPTIONS: Record<NodeType, string> = {
   llm: "Führt einen LLM-Inferenz-Schritt aus (Ollama lokal oder Cloud) mit Prompt-Templates & Bindings.",
   rag: "Durchsucht die lokale LanceDB Vektordatenbank und reichert den Kontext mit relevanten Chunks an.",
   loop: "Deklarativer Bedingungs-Router für iterative ReAct-Loops und Fehlerkorrekturen.",
-  reducer: "Transformiert oder aggregiert Datenfelder im Agent-State (z.B. SET, APPEND, MERGE).",
+  reducer: "Setzt, überschreibt oder transformiert Variablen im Agent-State (wie die 'Set'-Node in n8n – z.B. SET, APPEND, MERGE, INCREMENT).",
   tool: "Führt ein lokales CLI-Skript oder Python-Tool deterministisch mit Output-Cap aus.",
   output: "Finaler Ausgabeknoten. Liefert das Endergebnis des Agent-Workflows zurück.",
 };

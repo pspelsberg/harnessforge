@@ -406,15 +406,59 @@ export function NodeConfigForm({node, onChange}: {node: ForgeNode; onChange: (co
 
       {node.type === "reducer" && (
         <>
-          {input("operation", String(draft.op || "SET"), v => set("op", v))}
+          <label style={{display: "flex", flexDirection: "column", gap: 4, marginBottom: 12}}>
+            <FieldHeader label="operation" info="Aktion für die Variable: SET (Wert setzen/überschreiben), APPEND_LIST (an Liste anhängen), MERGE_DICT (JSON mergen), INCREMENT (+1 Zähler)." />
+            <select
+              aria-label="operation"
+              value={String(draft.op || "SET")}
+              onChange={e => set("op", e.target.value)}
+              className="forge-input"
+            >
+              <option value="SET">SET (Variable setzen / überschreiben)</option>
+              <option value="APPEND_LIST">APPEND_LIST (An Liste anhängen)</option>
+              <option value="MERGE_DICT">MERGE_DICT (Dictionary mergen)</option>
+              <option value="INCREMENT">INCREMENT (Zähler +1)</option>
+            </select>
+            <div style={{display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4}}>
+              <span style={{fontSize: "0.7rem", color: "#64748b", alignSelf: "center"}}>Schnellwahl:</span>
+              {["SET", "APPEND_LIST", "MERGE_DICT", "INCREMENT"].map(op => (
+                <button
+                  key={op}
+                  type="button"
+                  onClick={() => set("op", op)}
+                  style={{
+                    background: draft.op === op ? "rgba(252, 211, 77, 0.25)" : "rgba(30, 41, 59, 0.6)",
+                    border: `1px solid ${draft.op === op ? "#fcd34d" : "#334155"}`,
+                    color: draft.op === op ? "#fcd34d" : "#94a3b8",
+                    borderRadius: 4,
+                    fontSize: "0.68rem",
+                    padding: "2px 6px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {op}
+                </button>
+              ))}
+            </div>
+          </label>
+
+          <label style={{display: "flex", flexDirection: "column", gap: 4, marginBottom: 12}}>
+            <FieldHeader label="target" info="Name der Ziel-Variable im State, die gesetzt oder geändert wird (z. B. 'task', 'retry_count' oder 'output')." />
+            <input
+              aria-label="target"
+              placeholder="z.B. result, count oder context"
+              value={String(draft.target || "")}
+              onChange={e => set("target", e.target.value)}
+            />
+          </label>
+
           <PathPickerInput
             label="source path"
             value={String(draft.source_path || "")}
             onChange={v => set("source_path", v)}
-            presets={["state.json", "output.md", "context.txt"]}
-            placeholder="e.g. state.json"
+            presets={["state.json", "output.md", "context.txt", "data.json"]}
+            placeholder="e.g. state.json oder Quelldatei"
           />
-          {input("target", String(draft.target || ""), v => set("target", v))}
         </>
       )}
 

@@ -6,11 +6,11 @@
 
 ### **Forge your autonomous agents with deterministic precision.**
 
-*Visuelles State-Graph- & Loop-Engineering für autonome KI-Agenten direkt auf localhost.*  
-*Kein Cloud-Zwang. Kein Vendor-Lock-in. Deterministische Kontrolle.*
+*Visual state-graph & loop engineering for autonomous AI agents directly on localhost.*  
+*No cloud lock-in. No vendor lock-in. Deterministic control.*
 
-[![Backend Tests](https://img.shields.io/badge/Backend%20Pytest-271%20Passed-10b981?style=flat-square&logo=pytest)](file:///home/peppi/coding/Harnessforge/backend)
-[![Frontend Tests](https://img.shields.io/badge/Frontend%20Vitest-49%20Passed-10b981?style=flat-square&logo=vitest)](file:///home/peppi/coding/Harnessforge/frontend)
+[![Backend Tests](https://img.shields.io/badge/Backend%20Pytest-330%20Passed-10b981?style=flat-square&logo=pytest)](file:///home/peppi/coding/Harnessforge/backend)
+[![Frontend Tests](https://img.shields.io/badge/Frontend%20Vitest-80%20Passed-10b981?style=flat-square&logo=vitest)](file:///home/peppi/coding/Harnessforge/frontend)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20Monolith%20(VSA)-f59e0b?style=flat-square)](file:///home/peppi/coding/Harnessforge/docs/adr/ADR-001-vsa-modular-monolith.md)
 [![Security Standard](https://img.shields.io/badge/Security-CodeUltra%20Full%20Tier-38bdf8?style=flat-square)](file:///home/peppi/coding/Harnessforge/docs/PLAN.md)
 [![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)](file:///home/peppi/coding/Harnessforge)
@@ -19,11 +19,11 @@
 
 ---
 
-## 🧭 Was ist HarnessForge?
+## 🧭 What is HarnessForge?
 
-**HarnessForge** ist eine lokale No-Code/Low-Code-Entwicklerplattform, mit der du komplexe **Agent-Harnesses** (Scaffoldings) visuell im Browser entwirfst, lokal ausführst, in Echtzeit beobachtest und mit einem Klick in **eigenständigen, produktionsreifen Python-Code (`agent_runner.py`)** exportierst.
+**HarnessForge** is a local-first, low-code/no-code developer platform that enables engineers to visually design, execute, observe, and debug complex **AI Agent Harnesses** (scaffoldings) directly in the browser, and export them with a single click into **standalone, production-grade Python code (`agent_runner.py`)**.
 
-Statt generischer Automatisierungs-Tools (wie n8n) oder starrer Cloud-Wrapper (wie Dify) ist HarnessForge speziell für **Loop-Engineering**, **Graph-Engineering**, **lokale RAG-Pipelines (LanceDB)** und **lokale Prompt-Bindings (`agents.md`)** optimiert.
+Unlike generic automation tools or opaque cloud wrappers, HarnessForge is purpose-built for **Loop Engineering**, **Graph Engineering**, **Local Vector RAG (LanceDB)**, **State Reducers / Set Variable nodes**, and **Local Prompt Bindings (`agents.md`)**.
 
 ```
 +------------------------------------------------------------------------------------+
@@ -32,11 +32,11 @@ Statt generischer Automatisierungs-Tools (wie n8n) oder starrer Cloud-Wrapper (w
 |  [ File Explorer ]  [ Canvas: React Flow + Custom Nodes ]   [ Live Inspector ]    |
 |  - agents.md        ┌───────────┐    ┌──────────────┐       - Node Config         |
 |  - prompts/         │ RAG Node  ├───►│ LLM Call     ├─┐     - State Diff          |
-|  - lancedb_data/    │ (LanceDB) │    │ (agents.md)  │ │     - Token Counter       |
+|  - lancedb/         │ (LanceDB) │    │ (agents.md)  │ │     - Token Counter       |
 |  - tools/           └───────────┘    └──────▲───────┘ │     - Dataflow Approval   |
 |                                             │         ▼                           |
 |                                       ┌─────┴───────────┐                         |
-|                                       │ Loop / Router   │◄─── [ State Reducer ]   |
+|                                       │ Loop / Router   │◄─── [ Set Variable ]    |
 |                                       │ (Max 5 Steps)   │                         |
 |                                       └────────┬────────┘                         |
 |                                                ▼                                  |
@@ -49,130 +49,137 @@ Statt generischer Automatisierungs-Tools (wie n8n) oder starrer Cloud-Wrapper (w
 
 ---
 
-## ✨ Kern-Features
+## ✨ Key Features
 
-### 🎨 Visueller Flow-Canvas im Neural-Forge Darkmode
-* **React Flow (XYFlow) Engine:** Flüssiges Drag-and-Drop, Zoom, Pan, Fit-to-View, Minimap und Tastatur-Shortcuts (`Ctrl+Z`, `Ctrl+Y`, `Del`, `Ctrl+D`).
-* **Spezialisierte Node-Registry:**
-  * **`Start Node`**: Graph-Einstiegspunkt mit Eingabe-Schema.
-  * **`LLM Call Node`**: Dateipfad-Picker für lokale `agents.md` / Prompts; Auswahl lokaler Modelle (Ollama, vLLM) oder Cloud-APIs (OpenAI, OpenRouter z. B. GPT-5.6 Luna).
-  * **`RAG / LanceDB Node`**: Liest lokale `.lance`-Verzeichnisse read-only aus; unterstützt Vektor- & Hybrid-Suche mit Score-Normalisierung.
-  * **`Loop & Router Node`**: ReAct- & Reflexions-Zyklen per Klick mit deklarativen Bedingungen (`==`, `regex`, numeric, exists), harter `max_iterations`-Bremse und Pflicht-Fallback.
-  * **`State Reducer Node`**: Deterministische State-Mutationen (`SET`, `APPEND_LIST`, `MERGE_DICT`, `INCREMENT`).
-  * **`Tool Node`**: Führt lokale Bash- und Python-Skripte im transparenten **Local Trust Mode** mit Timeout und Output-Caps aus.
-  * **`Output Node`**: Validierter Endzustand und strukturierte Rückgabe.
-* **Dynamische Status-Glows:** Nodes leuchten live auf (`Amber Pulse` bei Ausführung, `Emerald` bei Erfolg, `Crimson` bei Fehlern).
+### 🎨 Visual Flow Canvas (Neural Forge Theme)
+* **React Flow (XYFlow) Engine:** Smooth drag-and-drop, zoom, pan, fit-to-view, interactive minimap, and keyboard shortcuts (`Ctrl+Z`, `Ctrl+Y`, `Delete`, `Ctrl+D`).
+* **Specialized Node Registry:**
+  * **`Start Node`**: Graph entry point with input schema and default task queries.
+  * **`LLM Call Node`**: Configurable inference step with prompt templates, bindings, and multi-model support (Ollama, Mistral AI, Anthropic Claude 5, OpenAI GPT-5.6, Google Gemini 3).
+  * **`RAG / LanceDB Node`**: Read-only local `.lance` vector search with top-k scoring and table presets.
+  * **`Loop / Router Node`**: Visual ReAct and reflection cycles with declarative conditions (`equals`, `regex`, `number`, `exists`), hard iteration caps, and designated fallback routes.
+  * **`Set Variable (State) Node`**: n8n-style state mutation node supporting `SET`, `APPEND_LIST`, `MERGE_DICT`, and `INCREMENT`.
+  * **`Tool Node`**: Executes local CLI scripts and Python tools in transparent **Local Trust Mode** with timeout and byte output caps.
+  * **`Output Node`**: Validated terminal state delivering formatted markdown or JSON.
+* **Dynamic Node Status Glows:** Real-time visual feedback (`Amber Pulse` for running, `Emerald` for success, `Crimson` for errors).
 
-### 🐍 1-Klick Standalone Python-Export (Zero Runtime Lock-in)
-* Exportiert den gesamten Graphen in ein **einzelnes, autarkes Python-Skript (`agent_runner.py`)**.
-* Null Abhängigkeiten zu FastAPI, React oder HarnessForge-Servern.
-* Inklusive `argparse`-CLI, stdout-Streaming, JSON-Logs, sauberer Exit-Codes und `--dry-run`-Modus.
-* Erzeugt automatisch ein gepinntes `requirements.txt` und `.env.example`.
+### 🤖 AI Agent Architect (Prompt-to-Graph Builder)
+* Synthesize complete, runnable agent graphs directly from natural language prompts.
+* Powered by native **Mistral AI (`codestral-latest`, `mistral-large-latest`, `mistral-small-latest`)** or local **Ollama** inference with intelligent fallback graph synthesis.
+* Pre-configured starter templates for **Minimal ReAct Loop**, **LanceDB RAG QA**, and **Self-Healing Coding Agent**.
 
-### 🛡️ Robuste Sicherheits-Architektur (CodeUltra Full Tier)
-* **Localhost-Only:** Backend bindet strikt an `127.0.0.1` mit zufälligem Session-Token pro Start und Host-Header-Schutz.
-* **Workspace Boundary (F-PATH):** Alle Dateizugriffe werden über `os.path.realpath` validiert; `..`-Traversal, Symlink-Escapes, `.env` und `.ssh/` sind gesperrt.
-* **Lethal-Trifecta-Schutz:** Explizite Bestätigung vor externen Provider-Aufrufen mit sichtbarer Datenfluss-Anzeige.
-* **Untrusted Context Isolation:** RAG-Chunks und Tool-Outputs werden als `<untrusted_context>` isoliert, um Prompt Injections abzuwehren.
-* **Tool Subprocess Governance:** SHA256-`config_hash`-Freigabe, 15s Default-Timeout (60s Hard-Cap), 50 KB Output-Cap und Prozessgruppen-Terminierung (`os.setsid`).
+### 🐍 1-Click Standalone Python Export (Zero Runtime Lock-in)
+* Export your entire agent graph into a **single, self-contained Python script (`agent_runner.py`)**.
+* Zero dependencies on FastAPI, React, or HarnessForge servers at runtime.
+* Includes `argparse` CLI, stdout event streaming, structured JSON logging, clean exit codes, and `--dry-run` validation.
+* Automatically bundles pinned `requirements.txt` and `.env.example`.
 
-### 📊 Live Observability & Token-Radar
-* **WebSocket-Event-Streaming:** Echtzeit-Updates für Node-Zustände, Streaming-Tokens, Tool-Outputs und Iterationen.
-* **Token-Radar:** Aufschlüsselung des Context-Windows (System-Prompt, RAG-Chunks, Tool-Ergebnisse, Chat-Historie).
-* **Lokale SQLite-Persistenz:** Speicherung aller Runs und redigierter Events unter `.harnessforge/runs.db` (WAL-Modus) mit 30-Tage-Retention und Ein-Klick-Löschung.
+### 🛡️ Enterprise Security Architecture (CodeUltra Standards)
+* **Strict Loopback Binding:** Backend binds exclusively to `127.0.0.1` with a per-process cryptographic Session Token and Host/Origin header validation.
+* **Workspace Boundary Enforcement:** All file paths are strictly resolved through `WorkspaceBoundary`; path traversal (`..`), symlink escapes, and unauthorized directories are rejected.
+* **Secrets Vault & Restricted Permissions:** API keys are stored in `.env` with strict **`chmod 0600`** (owner-only) POSIX permissions and masked on all client requests.
+* **Explicit Cloud Dataflow Approval:** Granular opt-in confirmation before sending state variables to external cloud providers.
+* **Local Trust Mode for Subprocesses:** Tools run as hash-verified subprocesses with execution timeouts and bounded memory buffers.
+
+### 📊 Live Observability & Token Radar
+* **WebSocket Realtime Streaming:** Live telemetry for node states, streaming tokens, tool stdout/stderr, and loop counters.
+* **Token Radar:** Dynamic visual breakdown of context window consumption (system prompts, RAG context, tool logs, chat history).
+* **Local SQLite Store:** Audit trail and execution logs persisted in `.harnessforge/runs.db` (WAL mode) with configurable retention.
 
 ---
 
-## 🏗️ Architektur & Tech-Stack
+## 🏗️ Architecture & Technology Stack
 
-HarnessForge ist als **Modular Monolith mit Vertical Slice Architecture (VSA)** aufgebaut:
+HarnessForge is designed as a **Modular Monolith following Vertical Slice Architecture (VSA)**:
 
 ```text
 Harnessforge/
-├── assets/                             # Logos & Visual Assets (Neural Forge Emblem)
+├── assets/                             # Brand assets & logos (Neural Forge Emblem)
 ├── backend/
 │   ├── app/
-│   │   ├── core/                       # Skeleton: Config, Security Primitives, DB
-│   │   └── features/                   # Tissue: Unabhängige Feature-Slices
-│   │       ├── graph_authoring/        # .forge.json Schema & Validierung
-│   │       ├── execution/              # Async Graph-Interpreter & Cycle Governance
-│   │       ├── providers/              # Ollama, OpenAI, OpenRouter Adapters
-│   │       ├── retrieval/              # LanceDB Read-only RAG & Context Isolation
-│   │       ├── tool_execution/         # Subprocess Runner & Local Trust Mode
-│   │       ├── observability/          # WebSocket Streaming & SQLite Store
-│   │       └── export/                 # Standalone agent_runner.py Generator
-│   ├── tests/                          # 271 automatisierte Tests (Pytest)
-│   └── run.py                          # Unterstützter Launcher (127.0.0.1:8000)
+│   │   ├── core/                       # Shared primitives: Config, Security, DB
+│   │   └── features/                   # Independent vertical feature slices
+│   │       ├── graph_authoring/        # .forge.json schema, validator & AI builder
+│   │       ├── execution/              # Async graph interpreter & loop governance
+│   │       ├── providers/              # Mistral, Anthropic, OpenAI, Ollama adapters & settings
+│   │       ├── retrieval/              # LanceDB read-only RAG & query runner
+│   │       ├── tool_execution/         # Subprocess runner & Local Trust Mode
+│   │       ├── human_gates/            # Interactive approval gates
+│   │       ├── time_travel/            # Checkpoint & state time-travel debugger
+│   │       ├── rlm/                    # Recursive Language Model spawner
+│   │       ├── observability/          # WebSocket event broker & SQLite run store
+│   │       └── export/                 # Standalone agent_runner.py generator
+│   ├── tests/                          # 330 automated Pytest test suites
+│   └── run.py                          # Supported loopback launcher (127.0.0.1:8000)
 ├── frontend/
 │   ├── src/
-│   │   ├── app/                        # Layout & Shell
-│   │   ├── shared/                     # Theme Tokens, UI Primitives, Session Auth
-│   │   └── features/                   # Frontend Slices (Canvas, Inspector, Drawer)
-│   └── package.json                    # Vite + React + Tailwind v4 + XYFlow
+│   │   ├── app/                        # Main shell, toolbar & layout
+│   │   ├── shared/                     # Theme tokens, UI components, session auth
+│   │   └── features/                   # Feature slices (Canvas, Inspector, Settings, Drawer)
+│   └── package.json                    # Vite + React + TypeScript + XYFlow
 ├── templates/
-│   └── standalone_runner.py.jinja      # Jinja2-Vorlage für den Python-Export
-├── docs/                               # Spezifikation, ADRs & PLAN.md
-├── CONTEXT.md                          # Domänenvokabular & Invarianten
-├── task.md                             # Master Implementation Task Board
-└── Erweiterungen.md                    # Phase-2 Roadmap (RLM, REPL, MCP)
+│   └── standalone_runner.py.jinja      # Jinja2 template for standalone Python export
+├── docs/                               # Architecture ADRs, specifications & PLAN.md
+├── CONTEXT.md                          # Domain vocabulary & system invariants
+├── task.md                             # Master task board
+└── Erweiterungen.md                    # Phase-2 roadmap (RLM, REPL, MCP)
 ```
 
 ---
 
-## 🚀 Schnellstart (Lokale Installation)
+## 🚀 Quickstart (Local Setup)
 
-### Voraussetzungen
-* **Python 3.12+** und [uv](https://docs.astral.sh/uv/) (empfohlen) oder `pip`
-* **Node.js 20+** und `npm`
-* *(Optional)* Lokales [Ollama](https://ollama.com/) für 100 % kostenlose lokale Inferenz
+### Prerequisites
+* **Python 3.11+** and [uv](https://docs.astral.sh/uv/) (recommended) or `pip`
+* **Node.js 20+** and `npm`
+* *(Optional)* Local [Ollama](https://ollama.com/) instance for offline inference
 
-### 1. Backend starten
+### 1. Launch the Backend
 ```bash
 cd backend
 uv sync
 python run.py
 ```
-> Das Backend läuft nun geschützt unter `http://127.0.0.1:8000`.
+> The backend will start on `http://127.0.0.1:8000` and automatically output its session token.
 
-### 2. Frontend starten
+### 2. Launch the Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-> Öffne `http://localhost:5173` in deinem Desktop-Browser.
+> Open `http://localhost:5173` in your browser.
 
 ---
 
-## 🧪 Test-Suites ausführen
+## 🧪 Running Tests
 
-Alle Komponenten sind durch automatisierte Unit-, Integrations- und Architektur-Fitness-Tests abgedeckt:
+Every layer of HarnessForge is verified through comprehensive automated test suites:
 
 ```bash
-# Backend-Tests (271 Tests inkl. Security-Matrix & VSA-Boundary-Checks)
-cd backend && uv run pytest
+# Run backend tests (330 Pytest tests covering security, VSA boundaries & execution)
+cd backend && uv run pytest -q
 
-# Frontend-Tests (49 Vitest Component- & Store-Tests)
+# Run frontend tests (80 Vitest component, store & security tests)
 cd frontend && npm test -- --run
 
-# Frontend Production Build prüfen
+# Validate frontend production bundle
 cd frontend && npm run build
 ```
 
 ---
 
-## 📖 Dokumentation & weiterführende Links
+## 📖 Documentation & Architecture References
 
-* [idea.md](idea.md) — Ursprüngliches Produktkonzept und Tailwind v4 Farb-Tokens.
-* [CONTEXT.md](CONTEXT.md) — Domänenvokabular, Begriffsdefinitionen und Invarianten.
-* [docs/PLAN.md](docs/PLAN.md) — Detaillierter 8-Phasen-Implementierungsplan und CodeUltra-Gates.
-* [docs/adr/](docs/adr/) — Architecture Decision Records (ADR-001 bis ADR-007).
-* [task.md](task.md) — Master Implementation Task Board.
-* [Erweiterungen.md](Erweiterungen.md) / [Erweiterungen_task.md](Erweiterungen_task.md) — Phase-2 Roadmap (RLM Prime-Agent-Pattern, Python-REPL-Sandbox, MCP-Gateway, Time-Travel-Debugger).
+* [CONTEXT.md](CONTEXT.md) — Domain vocabulary, system terms, and invariants.
+* [docs/PLAN.md](docs/PLAN.md) — 8-phase implementation plan and CodeUltra compliance.
+* [docs/adr/](docs/adr/) — Architecture Decision Records (ADR-001 through ADR-007).
+* [task.md](task.md) — Master implementation task board.
+* [Erweiterungen.md](Erweiterungen.md) — Phase-2 roadmap (RLM Prime-Agent patterns, Python REPL sandbox, MCP Gateway, Time-Travel debugger).
 
 ---
 
-## 📄 Lizenz
+## 📄 License
 
-MIT License — Erstellt mit Leidenschaft für Entwickler autonomer Agenten-Systeme.  
+MIT License — Built with precision for autonomous agent engineers.  
 *Forge your autonomous agents with deterministic precision.*
