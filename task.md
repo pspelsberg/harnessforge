@@ -127,7 +127,7 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 - [x] **2.2 Asynchroner Graph-Interpreter & Flow-Execution**
   - [x] Event-basierter Async-Runner für gerichtete Graphen
   - [x] Topologische Abarbeitung von Node zu Node
-  - [ ] Statusübergänge: `created -> validating -> running -> succeeded / failed / cancelled / limit_exceeded`
+  - [x] Statusübergänge: `created -> validating -> running -> succeeded / failed / cancelled / limit_exceeded`
   - [x] Einzelner aktiver Run pro HarnessForge-Prozess (neue Starts werden bei laufendem Run abgewiesen)
 
 - [x] **2.3 Cycle Governance & Loop-Kontrolle (ReAct-Loops)**
@@ -140,13 +140,13 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
   - [x] Max. State-Größe: 5 MB Hard-Cap
   - [x] Max. Graph-Nodes: 50 Hard-Cap
   - [x] Max. Gesamt-Run-Dauer: 5 Minuten Timeout
-  - [ ] Sofortiger sauberer Abbruch und Logging bei Budget-Überschreitung
+  - [x] Sofortiger sauberer Abbruch und Logging bei Budget-Überschreitung
 
 - [x] **2.5 Sofortiger Run-Abbruch (Stop-Signal)**
   - [x] WebSocket-Befehl `run.cancel` empfangen
-  - [ ] Laufende Subprozesse hart per Prozessgruppe (`SIGKILL` / `SIGTERM`) beenden
-  - [ ] Aktive LLM-Streaming-Sockets sauber schließen
-  - [ ] Status als `cancelled` in SQLite persistieren
+  - [x] Laufende Subprozesse hart per Prozessgruppe (`SIGKILL` / `SIGTERM`) beenden
+  - [x] Aktive LLM-Streaming-Sockets sauber schließen
+  - [x] Status als `cancelled` in SQLite persistieren
 
 ---
 
