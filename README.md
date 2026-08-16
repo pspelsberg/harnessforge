@@ -1,4 +1,4 @@
-# ⚡ HarnessForge -WIP
+# ⚡ HarnessForge - WIP
 
 <div align="center">
 
