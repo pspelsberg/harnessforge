@@ -40,15 +40,15 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 
 - [x] **0.4 Workspace Boundary & Path Sanitizer (CWE-22 / F-PATH)**
   - [x] `WorkspaceBoundaryService` in `backend/app/core/security/path_sanitizer.py` implementieren
-  - [ ] Auflösung über `os.path.realpath` / `Path.resolve(strict=True)` zur Verhinderung von Symlink-Escapes
-  - [ ] Automatische Ablehnung von `..`-Traversal, System-Verzeichnissen (`/etc`, `/usr`, `/proc`), `.env`, `.ssh/`, `.git/`
+  - [x] Auflösung über `os.path.realpath` / `Path.resolve(strict=True)` zur Verhinderung von Symlink-Escapes
+  - [x] Automatische Ablehnung von `..`-Traversal, System-Verzeichnissen (`/etc`, `/usr`, `/proc`), `.env`, `.ssh/`, `.git/`
   - [x] Unit-Tests für Traversal-, Symlink- und Null-Byte-Angriffe schreiben
 
 - [x] **0.5 Architektur-Fitness & Ratchet-Tests (F-FIT)**
   - [x] Automatisierte Import-Linter-Regel / Pytest-Architekturtest schreiben:
     - [x] `backend/app/core/` darf keine Module aus `backend/app/features/` importieren
-    - [ ] Feature-Slices dürfen keine internen privaten Module anderer Feature-Slices importieren (nur öffentliche Verträge)
-    - [ ] Der Standalone-Code-Generator darf kein `fastapi` oder `react` in den Export einbinden
+    - [x] Feature-Slices dürfen keine internen privaten Module anderer Feature-Slices importieren (nur öffentliche Verträge)
+    - [x] Der Standalone-Code-Generator darf kein `fastapi` oder `react` in den Export einbinden
 
 ---
 
