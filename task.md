@@ -153,34 +153,34 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 ## 🤖 Phase 3: Provider Slice (Ollama, Local, OpenAI, OpenRouter)
 
 - [x] **3.1 Einheitlicher Chat-Completion Adaptervertrag (`providers/base.py`)**
-  - [ ] Interface `BaseProviderAdapter` mit einheitlicher Methode `async def complete(request: CompletionRequest) -> AsyncIterator[CompletionChunk]`
-  - [ ] Einheitliche Datenstruktur für Tokens, Kosten-Metadaten und normalisierte Fehlermeldungen
+  - [x] Interface `BaseProviderAdapter` mit einheitlicher Methode `async def complete(request: CompletionRequest) -> AsyncIterator[CompletionChunk]`
+  - [x] Einheitliche Datenstruktur für Tokens, Kosten-Metadaten und normalisierte Fehlermeldungen
 
 - [x] **3.2 Provider-Adapter Implementierungen**
-  - [ ] `OllamaAdapter`: Anbindung an lokales Ollama (`http://127.0.0.1:11434/api/chat`)
-  - [ ] `LocalOpenAIAdapter`: Für vLLM, LM Studio, llama.cpp mit konfigurierbarer Loopback-URL
-  - [ ] `NativeOpenAIAdapter`: Offizielle OpenAI-API (`https://api.openai.com/v1`)
-  - [ ] `OpenRouterAdapter`: OpenRouter-API (`https://openrouter.ai/api/v1`) inkl. GPT-5.6 Luna / dynamischer Modell-ID und optionalen Referer-/Title-Headern
+  - [x] `OllamaAdapter`: Anbindung an lokales Ollama (`http://127.0.0.1:11434/api/chat`)
+  - [x] `LocalOpenAIAdapter`: Für vLLM, LM Studio, llama.cpp mit konfigurierbarer Loopback-URL
+  - [x] `NativeOpenAIAdapter`: Offizielle OpenAI-API (`https://api.openai.com/v1`)
+  - [x] `OpenRouterAdapter`: OpenRouter-API (`https://openrouter.ai/api/v1`) inkl. GPT-5.6 Luna / dynamischer Modell-ID und optionalen Referer-/Title-Headern
 
 - [x] **3.3 SSRF-Schutz & Endpoint-Allowlist (F-PATH / SSRF)**
-  - [ ] Strikte Host-Validierung für Provider-URLs:
+  - [x] Strikte Host-Validierung für Provider-URLs:
     - Erlaubt: `127.0.0.1:*`, `localhost:*`, `api.openai.com`, `openrouter.ai`
     - Verboten: Private LAN-IPs (10.x, 192.168.x, 172.16.x) und Cloud-Metadata-IPs (`169.254.169.254`)
   - [x] Keine unkontrollierten HTTP-Redirects
 
 - [x] **3.4 Secret Redaction & Key-Management Policy (F-SEC / C-LOG)**
   - [x] API-Keys werden ausschließlich über Environment-Variablen geladen (`$OPENAI_API_KEY`, `$OPENROUTER_API_KEY`)
-  - [ ] Niemals Plaintext-Keys in `.forge.json`, Event-Logs, WebSocket-Streams oder exportiertem Code
-  - [ ] Automatischer Regex-Maskierer für Bearer-Tokens & Auth-Header in allen Trace-Logs
+  - [x] Niemals Plaintext-Keys in `.forge.json`, Event-Logs, WebSocket-Streams oder exportiertem Code
+  - [x] Automatischer Regex-Maskierer für Bearer-Tokens & Auth-Header in allen Trace-Logs
 
-- [ ] **3.5 Lethal-Trifecta-Schutz & Datenfluss-Aktivierung**
-  - [ ] UI-Dialog zur expliziten Datenfluss-Aktivierung vor dem ersten Request an externe Provider
-  - [ ] Klare Anzeige, welche State-Felder an den externen Provider gesendet werden
-  - [ ] Automatische Invalidierung der Freigabe bei Änderungen an Provider, Modell, Endpoint oder State-Bindings
+- [x] **3.5 Lethal-Trifecta-Schutz & Datenfluss-Aktivierung**
+  - [x] UI-Dialog zur expliziten Datenfluss-Aktivierung vor dem ersten Request an externe Provider
+  - [x] Klare Anzeige, welche State-Felder an den externen Provider gesendet werden
+  - [x] Automatische Invalidierung der Freigabe bei Änderungen an Provider, Modell, Endpoint oder State-Bindings
 
 - [x] **3.6 Prompt Binding & Variable Interpolation**
-  - [ ] Sichere Prompt-Prioritätskette: `globaler Prompt -> agents.md -> Node-Prompt -> State-Variablen`
-  - [ ] Sichere String-Formatierung (`{query}`, `{retrieved_context}`, `{last_output}`) ohne unsicheres `eval()` / arbitrary Jinja-Code
+  - [x] Sichere Prompt-Prioritätskette: `globaler Prompt -> agents.md -> Node-Prompt -> State-Variablen`
+  - [x] Sichere String-Formatierung (`{query}`, `{retrieved_context}`, `{last_output}`) ohne unsicheres `eval()` / arbitrary Jinja-Code
 
 ---
 
