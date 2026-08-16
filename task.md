@@ -187,12 +187,12 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 ## 📚 Phase 4: Retrieval Slice (LanceDB Read-Only RAG)
 
 - [x] **4.1 Lokaler LanceDB Inspector (`retrieval/lancedb_inspector.py`)**
-  - [ ] Öffnet lokales LanceDB-Verzeichnis innerhalb der Workspace-Boundary
-  - [ ] Listet Tabellennamen auf und liest Spalten-Metadaten aus
-  - [ ] Auto-Erkennung von Text- und Vektorspalten
+  - [x] Öffnet lokales LanceDB-Verzeichnis innerhalb der Workspace-Boundary
+  - [x] Listet Tabellennamen auf und liest Spalten-Metadaten aus
+  - [x] Auto-Erkennung von Text- und Vektorspalten
 
 - [x] **4.2 LanceDB Query Runner (`retrieval/lancedb_runner.py`)**
-  - [ ] Führt Vektor-Suche und optionale Hybrid-Suche (Dense + BM25) aus
+  - [x] Führt Vektor-Suche und optionale Hybrid-Suche (Dense + BM25) aus
   - [x] Normalisiert Treffer-Ergebnisse:
     ```python
     [{"text": str, "score": float, "metadata": dict}]
@@ -201,8 +201,8 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 
 - [x] **4.3 Untrusted Context Isolation (F-LLM / Prompt Injection Guard)**
   - [x] RAG-Treffer werden im Prompt strukturell als `<untrusted_context>` eingekapselt
-  - [ ] System-Prompt stellt klar, dass RAG-Inhalte reine Referenzdaten sind und keine Steuerbefehle überschreiben dürfen
-  - [ ] RAG-Inhalte dürfen niemals Systemprompts, Graph-Topologie oder Tool-Freigaben manipulieren
+  - [x] System-Prompt stellt klar, dass RAG-Inhalte reine Referenzdaten sind und keine Steuerbefehle überschreiben dürfen
+  - [x] RAG-Inhalte dürfen niemals Systemprompts, Graph-Topologie oder Tool-Freigaben manipulieren
 
 ---
 
