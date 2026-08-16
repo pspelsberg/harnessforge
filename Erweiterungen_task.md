@@ -330,9 +330,9 @@ features/time_travel/
 
 ## Security-/Test-Tasks
 
-- [ ] IDOR auf Checkpoints/Forks, State-Poisoning, stale graph, cross-workspace und approval reuse testen.
-- [ ] Vitest: Timeline, state diff, fork confirmation und lineage.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] IDOR auf Checkpoints/Forks, State-Poisoning, stale graph, cross-workspace und approval reuse testen.
+- [x] Vitest: Timeline, state diff, fork confirmation und lineage.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 
