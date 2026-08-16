@@ -209,24 +209,24 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 ## 🛠️ Phase 5: Tool Execution Slice (Local Trust Mode Sandbox)
 
 - [x] **5.1 Workspace-Bounded Subprocess Runner (`tool_execution/runner.py`)**
-  - [ ] Ausführung lokaler Skripte (`.py`, `.sh`, `.js`) innerhalb des Workspaces
+  - [x] Ausführung lokaler Skripte (`.py`, `.sh`, `.js`) innerhalb des Workspaces
   - [x] `shell=False` als Pflicht-Standard (keine unkontrollierten Shell-Interpolationen)
-  - [ ] Arbeitsverzeichnis strikt auf den Workspace beschränkt
+  - [x] Arbeitsverzeichnis strikt auf den Workspace beschränkt
 
 - [x] **5.2 "Local Trust Mode" Governance & Transparenz**
-  - [ ] Sichtbare Warnung im Tool-Node: "Lokaler Vertrauensmodus (Subprozess ohne OS-Sandbox)"
-  - [ ] Minimierte Environment-Vererbung (API-Keys und Session-Tokens werden standardmäßig aus `env` entfernt)
+  - [x] Sichtbare Warnung im Tool-Node: "Lokaler Vertrauensmodus (Subprozess ohne OS-Sandbox)"
+  - [x] Minimierte Environment-Vererbung (API-Keys und Session-Tokens werden standardmäßig aus `env` entfernt)
   - [x] Kontrollierte `PATH`-Umgebung
 
 - [x] **5.3 Hash-basierte Tool-Freigabe (`config_hash`)**
-  - [ ] Berechnung eines SHA256-Hashes über Skriptpfad, mtime/Inhalt, Argumente, Env-Allowlist, Schreibverzeichnisse und Limits
-  - [ ] Tool darf nur ausgeführt werden, wenn der `config_hash` im Canvas manuell bestätigt wurde
-  - [ ] Jede Datei- oder Konfigurationsänderung invalidiert den Status sofort
+  - [x] Berechnung eines SHA256-Hashes über Skriptpfad, mtime/Inhalt, Argumente, Env-Allowlist, Schreibverzeichnisse und Limits
+  - [x] Tool darf nur ausgeführt werden, wenn der `config_hash` im Canvas manuell bestätigt wurde
+  - [x] Jede Datei- oder Konfigurationsänderung invalidiert den Status sofort
 
 - [x] **5.4 Subprozess-Limits & Prozessgruppen-Terminierung (F-DOS)**
   - [x] Timeout: Default 15 Sekunden, Hard-Cap 60 Sekunden
   - [x] Output-Cap: Max. 50 KB für stdout und stderr (Überlauf wird trunkiert)
-  - [ ] Erzeugung einer eigenen Prozessgruppe (`preexec_fn=os.setsid` unter Unix) für zuverlässiges Killen aller Child-Prozesse bei Timeout/Abbruch
+  - [x] Erzeugung einer eigenen Prozessgruppe (`preexec_fn=os.setsid` unter Unix) für zuverlässiges Killen aller Child-Prozesse bei Timeout/Abbruch
 
 - [x] **5.5 Deklarative Schreibrechte (Allowlist, kooperativer Local-Trust-Vertrag)**
   - [x] Standardmäßig werden keine Schreibverzeichnisse deklariert
