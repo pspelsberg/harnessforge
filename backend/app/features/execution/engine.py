@@ -38,6 +38,7 @@ class GraphRunner:
         if not validation.valid:
             error="; ".join(i.message for i in validation.errors)
             self._event("run.failed", error=error[:256])
+            self._event("run.completed", status=RunState.FAILED.value)
             type(self)._active=False
             return RunResult(RunState.FAILED,state,error)
         self._event("run.running"); current=next(n.id for n in self.graph.nodes if n.type=="start"); steps=0; loop_counts: dict[str,int]={}
@@ -45,11 +46,11 @@ class GraphRunner:
             while self.nodes[current].type != "output":
                 await self._resume_event.wait()
                 if self._cancelled:
-                    self._event("run.cancelled"); return RunResult(RunState.CANCELLED,state,"cancelled")
+                    self._event("run.cancelled"); self._event("run.completed", status=RunState.CANCELLED.value); return RunResult(RunState.CANCELLED,state,"cancelled")
                 if asyncio.get_running_loop().time() - started > CAPS.max_run_seconds:
-                    self._event("run.limit_exceeded"); return RunResult(RunState.LIMIT_EXCEEDED,state,"run timeout exceeded")
+                    self._event("run.limit_exceeded"); self._event("run.completed", status=RunState.LIMIT_EXCEEDED.value); return RunResult(RunState.LIMIT_EXCEEDED,state,"run timeout exceeded")
                 if steps >= CAPS.max_nodes * CAPS.max_loop_iterations:
-                    self._event("run.limit_exceeded"); return RunResult(RunState.LIMIT_EXCEEDED,state,"run step limit exceeded")
+                    self._event("run.limit_exceeded"); self._event("run.completed", status=RunState.LIMIT_EXCEEDED.value); return RunResult(RunState.LIMIT_EXCEEDED,state,"run step limit exceeded")
                 node=self.nodes[current]; self._event("node.queued",node_id=node.id); self._event("node.running",node_id=node.id); steps += 1
                 targets=self.out[node.id]
                 if node.type in {"start","reducer"}:
@@ -97,11 +98,11 @@ class GraphRunner:
                 self._event("node.succeeded",node_id=node.id)
                 self._event("state.diff",changed_keys=["last_output","iteration","retrieved_context","tool_results"])
                 await asyncio.sleep(self._run_step_delay)
-            self._event("run.succeeded"); return RunResult(RunState.SUCCEEDED,state)
+            self._event("run.succeeded"); self._event("run.completed", status=RunState.SUCCEEDED.value); return RunResult(RunState.SUCCEEDED,state)
         except Exception as exc:
             safe_error=str(exc).splitlines()[0][:256] if isinstance(exc,RunError) else "execution failed"
             self._event("node.failed",node_id=node.id if "node" in locals() else None,error=safe_error)
-            self._event("run.failed"); return RunResult(RunState.FAILED,state,safe_error)
+            self._event("run.failed"); self._event("run.completed", status=RunState.FAILED.value); return RunResult(RunState.FAILED,state,safe_error)
         finally:
             type(self)._active=False
     @staticmethod

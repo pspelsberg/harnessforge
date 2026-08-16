@@ -81,4 +81,4 @@ async def test_invalid_graph_emits_terminal_failure_event():
     events=[]
     result=await GraphRunner(graph,event_sink=events.append).run()
     assert result.status is RunState.FAILED
-    assert [event["type"] for event in events][-1] == "run.failed"
+    assert [event["type"] for event in events][-2:] == ["run.failed", "run.completed"]

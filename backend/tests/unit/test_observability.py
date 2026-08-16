@@ -82,3 +82,12 @@ def test_run_store_tracks_bounded_lifecycle_status(tmp_path):
     assert asyncio.run(store.get_run_status("r1")) == "cancelled"
     with __import__("pytest").raises(ValueError): asyncio.run(store.update_run_status("r1", "unknown"))
     with __import__("pytest").raises(ValueError): asyncio.run(store.update_run_status("r1", "running"))
+
+
+def test_checkpoints_are_redacted_and_bounded_by_default(tmp_path):
+    store=RunStore(tmp_path/"runs.db"); asyncio.run(store.initialize()); asyncio.run(store.create_run("r"))
+    asyncio.run(store.save_checkpoint("r",1,{"token":"Bearer secret","nested":{"api_key":"value"}}))
+    rendered=json.dumps(asyncio.run(store.list_checkpoints("r")))
+    assert "secret" not in rendered and "value" not in rendered and "[REDACTED]" in rendered
+    asyncio.run(store.save_checkpoint("r",2,{"x":"a"*300000}))
+    assert len(asyncio.run(store.list_checkpoints("r"))[1]["payload"]["x"]) <= 4096

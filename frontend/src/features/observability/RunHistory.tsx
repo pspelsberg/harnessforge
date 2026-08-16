@@ -1,1 +1,12 @@
-import {useEffect,useState} from "react"; import {apiJson} from "../../shared/api"; export type RunRecord={id:string;created_at:string}; export function RunHistory({token,onSelect,onDelete}:{token:string;onSelect:(id:string)=>void;onDelete?:(id:string)=>void}){const [runs,setRuns]=useState<RunRecord[]>([]);const [error,setError]=useState<string|null>(null);useEffect(()=>{apiJson<{runs:RunRecord[]}>("/api/runs",{token}).then(x=>setRuns(x.runs)).catch(()=>setError("Run history unavailable"))},[token]);return <aside aria-label="run history">{error&&<p role="alert">{error}</p>}{runs.map(run=><span key={run.id}><button onClick={()=>onSelect(run.id)}>{run.id}</button>{onDelete&&<button aria-label={`delete ${run.id}`} onClick={()=>{if(window.confirm("Delete this run permanently?"))onDelete(run.id)}}>Delete</button>}</span>)}</aside>}
+import {useEffect,useState} from "react";
+import {apiJson} from "../../shared/api";
+
+export type RunStatus="created"|"validating"|"running"|"succeeded"|"failed"|"cancelled"|"limit_exceeded";
+export type RunRecord={id:string;created_at:string;status?:RunStatus};
+
+export function RunHistory({token,onSelect,onDelete}:{token:string;onSelect:(id:string)=>void;onDelete?:(id:string)=>void}){
+ const [runs,setRuns]=useState<RunRecord[]>([]);
+ const [error,setError]=useState<string|null>(null);
+ useEffect(()=>{apiJson<{runs:RunRecord[]}>("/api/runs",{token}).then(x=>setRuns(x.runs)).catch(()=>setError("Run history unavailable"))},[token]);
+ return <aside aria-label="run history">{error&&<p role="alert">{error}</p>}{runs.map(run=><span key={run.id}><button onClick={()=>onSelect(run.id)}>{run.id}</button><strong data-status={run.status||"created"}>{run.status||"created"}</strong>{onDelete&&<button aria-label={`delete ${run.id}`} onClick={()=>{if(window.confirm("Delete this run permanently?"))onDelete(run.id)}}>Delete</button>}</span>)}</aside>;
+}

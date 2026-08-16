@@ -4,7 +4,10 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import aiosqlite
+from app.core.config import CAPS
 from app.features.observability.events import Event, redact_event
+from app.core.json_values import validate_json_value
+from app.core.security.redaction import redact_payload
 
 _RUN_STATUSES = frozenset({"created", "validating", "running", "succeeded", "failed", "cancelled", "limit_exceeded"})
 _RUN_TRANSITIONS = {
@@ -84,11 +87,17 @@ class RunStore:
             await db.execute("UPDATE runs SET status=? WHERE id=?", (status, run_id))
             await db.commit()
 
-    async def save_checkpoint(self, run_id: str, step: int, payload: dict):
+    async def save_checkpoint(self, run_id: str, step: int, payload: dict, *, debug: bool = False):
         import json
-        if not isinstance(step,int) or step<0 or len(json.dumps(payload).encode())>5*1024*1024: raise ValueError("invalid checkpoint")
+        if not isinstance(step,int) or step<0 or not isinstance(payload,dict): raise ValueError("invalid checkpoint")
+        clean=payload if debug else redact_payload(payload)
+        try: validate_json_value(clean)
+        except ValueError as exc: raise ValueError("invalid checkpoint") from exc
+        encoded=json.dumps(clean,ensure_ascii=False,separators=(",",":"))
+        max_bytes=5*1024*1024 if debug else CAPS.max_event_bytes
+        if len(encoded.encode())>max_bytes: raise ValueError("invalid checkpoint")
         async with self._connect() as db:
-            await db.execute("INSERT INTO checkpoints(run_id,step,payload) VALUES (?,?,?)",(run_id,step,json.dumps(payload,separators=(",",":")))); await db.commit()
+            await db.execute("INSERT INTO checkpoints(run_id,step,payload) VALUES (?,?,?)",(run_id,step,encoded)); await db.commit()
     async def list_checkpoints(self, run_id: str, *, limit: int = 1000):
         if not 1<=limit<=10000: raise ValueError("invalid checkpoint limit")
         async with self._connect() as db:
