@@ -33,6 +33,9 @@ from app.features.providers.contracts import ProviderConfig
 from app.features.providers.adapters import DataflowApproval
 from app.features.repl_sandbox.api import router_for as repl_router_for
 from app.features.repl_sandbox.sessions import ReplSessionManager
+from app.features.mcp_gateway.api import router_for as mcp_router_for
+from app.features.mcp_gateway.registry import McpRegistry
+from app.features.mcp_gateway.proxy import McpGateway
 
 _ALLOWED_HOSTS={"127.0.0.1","localhost"}
 _ALLOWED_ORIGINS={"http://127.0.0.1:5173","http://localhost:5173"}
@@ -40,6 +43,8 @@ _ALLOWED_PORTS={None, 80, 443, 5173, 8000}
 
 def create_app(*, session_value: str | None = None, workspace: str | Path | None = None, execution_services=None) -> FastAPI:
     repl_manager=ReplSessionManager(workspace or Path.cwd())
+    mcp_registry=McpRegistry(workspace or Path.cwd())
+    mcp_gateway=McpGateway(mcp_registry)
     @asynccontextmanager
     async def lifespan(_app):
         try: yield
@@ -257,7 +262,10 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     app.include_router(router_for(workspace or Path.cwd()), dependencies=[Depends(auth)])
     app.include_router(workspace_router_for(workspace or Path.cwd()), dependencies=[Depends(auth)])
     app.state.repl_manager=repl_manager
+    app.state.mcp_registry=mcp_registry
+    app.state.mcp_gateway=mcp_gateway
     app.include_router(repl_router_for(repl_manager), dependencies=[Depends(auth)])
+    app.include_router(mcp_router_for(mcp_registry,mcp_gateway), dependencies=[Depends(auth)])
     @app.post("/api/run")
     async def run_graph(request:RunRequest, _: None = Depends(auth)):
         try:

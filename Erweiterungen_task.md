@@ -253,10 +253,10 @@ features/mcp_gateway/
 
 ## Security-/Test-Tasks
 
-- [ ] Poisoned Server Manifest, Schema-Bomb, SSRF, Redirect, DNS-Rebinding und untrusted Resource testen.
-- [ ] Tool-Missbrauch, Rechteausweitung, Stdio-Environment-Leak und Process-Group-Cleanup testen.
-- [ ] Vitest: Catalog, Progressive Disclosure, Approval und Fehlerzustände.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] Poisoned Server Manifest, Schema-Bomb, SSRF, Redirect, DNS-Rebinding und untrusted Resource testen.
+- [x] Tool-Missbrauch, Rechteausweitung, Stdio-Environment-Leak und Process-Group-Cleanup testen.
+- [x] Vitest: Catalog, Progressive Disclosure, Approval und Fehlerzustände.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 

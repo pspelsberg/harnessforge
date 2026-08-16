@@ -1,0 +1,3 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { approveMcpServer, listMcpServers } from "./mcpApi";
+describe("MCP catalog API", () => { afterEach(() => vi.restoreAllMocks()); it("keeps approval authenticated and encodes server IDs", async () => { const fetchMock=vi.spyOn(globalThis,"fetch").mockImplementation(async () => new Response(JSON.stringify({contract_version:"1",server_id:"srv/1",name:"local",transport:"stdio",approved:true,capabilities:[]}),{status:200})); await approveMcpServer("srv/1","token"); await listMcpServers("token"); expect(fetchMock.mock.calls[0][0]).toBe("/api/mcp/servers/srv%2F1/approve"); expect(new Headers(fetchMock.mock.calls[0][1]?.headers).get("x-harnessforge-token")).toBe("token"); }); });
