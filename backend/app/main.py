@@ -1,6 +1,7 @@
 """FastAPI composition root with localhost-only security defaults."""
 from __future__ import annotations
 import asyncio
+import json
 from fastapi import FastAPI, Header, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -127,6 +128,11 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
             header_authenticated=token.verify(candidate)
             if not header_authenticated:
                 auth_message=await ws.receive_json()
+                try:
+                    if len(json.dumps(auth_message,ensure_ascii=False,separators=(",",":")).encode()) > CAPS.max_event_bytes:
+                        await ws.close(code=1009); return
+                except (TypeError,ValueError):
+                    await ws.close(code=1003); return
                 candidate=auth_message.get("token") if isinstance(auth_message,dict) and auth_message.get("type")=="auth" else None
             if not token.verify(candidate): await ws.close(code=1008); return
             if not header_authenticated: await ws.send_json({"type":"authenticated"})

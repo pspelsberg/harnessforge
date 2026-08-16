@@ -53,3 +53,11 @@ def test_websocket_can_start_an_activated_graph(tmp_path):
     with client.websocket_connect("/ws",headers=headers) as ws:
         ws.send_json({"type":"run.start","payload":{"graph":graph,"query":"hello"}})
         assert ws.receive_json()["type"]=="run.started"
+
+
+def test_websocket_auth_message_is_bounded(tmp_path):
+    app=create_app(session_value="test-session",workspace=tmp_path); client=TestClient(app)
+    with pytest.raises(Exception):
+        with client.websocket_connect("/ws",headers={"host":"127.0.0.1","origin":"http://127.0.0.1:5173"}) as ws:
+            ws.send_json({"type":"auth","token":"x","padding":"a"*300000})
+            ws.receive_json()
