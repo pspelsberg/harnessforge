@@ -237,28 +237,28 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 
 ## 📡 Phase 6: Observability Slice (WebSocket & SQLite Persistence)
 
-- [ ] **6.1 WebSocket Event Server (`observability/ws_server.py`)**
-  - [ ] Authentifizierung via Session-Token im Handshake
-  - [ ] Bidirektionale Events: Run starten, pausieren, abbrechen
-  - [ ] Normalisierte Streaming-Events:
+- [x] **6.1 WebSocket Event Server (`observability/ws_server.py`)**
+  - [x] Authentifizierung via Session-Token im Handshake
+  - [x] Bidirektionale Events: Run starten, pausieren, abbrechen
+  - [x] Normalisierte Streaming-Events:
     - `node.queued`, `node.running`, `node.succeeded`, `node.failed`
     - `llm.token_stream`, `rag.results`, `tool.output`
     - `iteration.update`, `state.diff`, `run.completed`
 
-- [ ] **6.2 Live UI Inspection & Trace Viewer (Bottom Drawer)**
-  - [ ] Live-Highlighting des aktiven Knotens im Canvas (Forge Amber Pulse)
-  - [ ] Terminal-Stream für LLM-Tokens und Tool-Logs
-  - [ ] Token- und Budget-Radar (Visualisierung von System-, RAG- und History-Tokens)
-  - [ ] Reines Text- und JSON-Rendering (kein `dangerouslySetInnerHTML` zur XSS-Vermeidung)
+- [x] **6.2 Live UI Inspection & Trace Viewer (Bottom Drawer)**
+  - [x] Live-Highlighting des aktiven Knotens im Canvas (Forge Amber Pulse)
+  - [x] Terminal-Stream für LLM-Tokens und Tool-Logs
+  - [x] Token- und Budget-Radar (Visualisierung von System-, RAG- und History-Tokens)
+  - [x] Reines Text- und JSON-Rendering (kein `dangerouslySetInnerHTML` zur XSS-Vermeidung)
 
 - [x] **6.3 Lokale SQLite Run-Persistenz (`observability/run_store.py`)**
   - [x] Persistierung unter `.harnessforge/runs.db` (SQLite im WAL-Modus)
   - [x] Gespeicherte Entitäten: `runs`, `events`, `checkpoints`
-  - [ ] Standardmäßig gekürzte und redigierte Daten (Maskierung sensibler Strings)
-  - [ ] Vollständige Snapshots nur bei explizitem lokalem Debug-Flag
+  - [x] Standardmäßig gekürzte und redigierte Daten (Maskierung sensibler Strings)
+  - [x] Vollständige Snapshots nur bei explizitem lokalem Debug-Flag
 
 - [x] **6.4 Privacy-by-Default & Retention-Policy (F-CMP / DSGVO)**
-  - [ ] Keine externe Telemetrie oder Tracking
+  - [x] Keine externe Telemetrie oder Tracking
   - [x] Automatische Retention (Standard 30 Tage, konfigurierbar)
   - [x] UI-Aktionen: "Diesen Run löschen" und "Alle Runs unwiderruflich löschen"
 
