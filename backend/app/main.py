@@ -24,19 +24,27 @@ from app.features.observability.broker import EventBroker
 from app.features.observability.ws_server import WebSocketCommand,WebSocketProtocolError
 import uuid
 import time
+from contextlib import asynccontextmanager
 from app.features.retrieval.query import LanceQueryRunner, RetrievalQueryError
 from app.features.retrieval.api_models import RetrievalRequest
 from app.features.export.generator import export_bundle, package_zip, ExportError
 from app.features.export.api_models import ExportRequest
 from app.features.providers.contracts import ProviderConfig
 from app.features.providers.adapters import DataflowApproval
+from app.features.repl_sandbox.api import router_for as repl_router_for
+from app.features.repl_sandbox.sessions import ReplSessionManager
 
 _ALLOWED_HOSTS={"127.0.0.1","localhost"}
 _ALLOWED_ORIGINS={"http://127.0.0.1:5173","http://localhost:5173"}
 _ALLOWED_PORTS={None, 80, 443, 5173, 8000}
 
 def create_app(*, session_value: str | None = None, workspace: str | Path | None = None, execution_services=None) -> FastAPI:
-    app=FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    repl_manager=ReplSessionManager(workspace or Path.cwd())
+    @asynccontextmanager
+    async def lifespan(_app):
+        try: yield
+        finally: await repl_manager.close_all()
+    app=FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.add_middleware(BodyLimitMiddleware,max_bytes=CAPS.max_request_bytes)
     token=SessionToken()
     if session_value is not None: token._value=session_value
@@ -248,6 +256,8 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     async def ready(): return {"status":"ready","localhost_only":True,"telemetry":False}
     app.include_router(router_for(workspace or Path.cwd()), dependencies=[Depends(auth)])
     app.include_router(workspace_router_for(workspace or Path.cwd()), dependencies=[Depends(auth)])
+    app.state.repl_manager=repl_manager
+    app.include_router(repl_router_for(repl_manager), dependencies=[Depends(auth)])
     @app.post("/api/run")
     async def run_graph(request:RunRequest, _: None = Depends(auth)):
         try:

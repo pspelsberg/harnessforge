@@ -160,6 +160,7 @@ features/repl_sandbox/
 - Ein Subprozess-Fallback darf nicht als Sandbox vermarktet werden und braucht eigene Local-Trust-Freigabe; ohne verifizierte Isolation bleibt er deaktiviert.
 - Persistente Sessions haben TTL, Idle-Timeout, maximalen Speicher, maximalen Output, maximalen Codeumfang und maximale Zellenanzahl.
 - Schreibzugriffe sind nur über explizite Workspace-Ports und atomare, boundary-validierte Artefakte erlaubt.
+- Die erste Implementierung verwendet ausschließlich den expliziten `local_trust`-Subprozess-Backend; eine WASM/Pyodide-Aktivierung bleibt bis zu einem verifizierten Runtime-Adapter deaktiviert.
 
 ## Frontend-Plan
 
@@ -168,12 +169,12 @@ features/repl_sandbox/
 
 ## Security-/Test-Tasks
 
-- [ ] Netzwerk-, Subprocess-, Import-, Reflection- und Dunder-Zugriffe deterministisch sperren.
-- [ ] CPU-, Memory-, Wall-clock-, Input-, Output- und Session-Caps testen.
-- [ ] Workspace-/Symlink-/`.env`-Tests ergänzen.
-- [ ] Cancellation räumt Kernel und Kindprozesse sicher auf.
-- [ ] Vitest: Editor, Caps, Interrupt, Fehler-/Redaction-UI und Import-Read-only.
-- [ ] CodeUltra Full Review → Findings beheben → Review ohne Befund.
+- [x] Netzwerk-, Subprocess-, Import-, Reflection- und Dunder-Zugriffe deterministisch sperren.
+- [x] CPU-, Memory-, Wall-clock-, Input-, Output- und Session-Caps testen.
+- [x] Workspace-/Symlink-/`.env`-Tests ergänzen.
+- [x] Cancellation räumt Kernel und Kindprozesse sicher auf.
+- [x] Vitest: Editor, Caps, Interrupt, Fehler-/Redaction-UI und Import-Read-only.
+- [x] CodeUltra Full Review → Findings beheben → Review ohne Befund.
 
 ---
 
