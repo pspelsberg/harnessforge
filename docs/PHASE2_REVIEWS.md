@@ -8,10 +8,10 @@ All slice reviews use CodeUltra Full / review schema 3.2. Each slice follows: in
 | P2.1 REPL | 10 / no findings | AST allowlist, process/TTL/memory/output caps, regression suite |
 | P2.2 RLM | 10 / no findings | context firewall, depth/fan-out/token/cancellation caps |
 | P2.3 MCP | 10 / no findings | endpoint/DNS/redirect/SSRF, hash approval and schema/rate caps |
-| P2.4 Human Gates | 10 / no findings | `/tmp/harnessforge-p24-final-review.md`; 7 backend tests, 2 Vitest tests |
-| P2.5 Time Travel | 10 / no findings | `/tmp/harnessforge-p25-final-review.md`; 3 backend tests, 3 Vitest tests |
-| P2.6 Continual Refiner | 10 / no findings | `/tmp/harnessforge-p26-final-review.md`; 2 backend tests, 2 Vitest tests |
-| P2.7 Workspace Indexer | 10 / no findings | `/tmp/harnessforge-p27-final-review.md`; 3 backend tests, 1 Vitest test |
-| P2.8 Coding Harness | 10 / no findings | initial finding P28-001 fixed by planner persistence regression; final sensor below |
+| P2.4 Human Gates | 10 / no findings | Initial: approved-after-TTL consume; fixed by atomic consume expiry. Final: 7 backend, 2 Vitest |
+| P2.5 Time Travel | 10 / no findings | Initial: non-canonical workspace path; fixed by canonical contract validation. Final: 3 backend, 3 Vitest |
+| P2.6 Continual Refiner | 10 / no findings | Initial: generic gate binding; fixed by suggestion-bound command/diff/path. Final: 2 backend, 2 Vitest |
+| P2.7 Workspace Indexer | 10 / no findings | Initial: LIKE wildcard and invalid binary records; escaped queries and binary exclusion. Final: 3 backend, 1 Vitest |
+| P2.8 Coding Harness | 10 / no findings | Initial: stale planner transitions; fixed by persisted transition sink. Final: 2 backend, 1 Vitest |
 
-The `/tmp` reports are the working review artifacts for this local run; the table is the durable project audit trail.
+This table is the durable project audit trail; each initial finding has a deterministic regression and each final review is schema-3.2 clean.
