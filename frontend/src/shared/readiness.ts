@@ -1,0 +1,1 @@
+import {apiJson} from "./api"; export function fetchReadiness(){return apiJson<{status:string;localhost_only:boolean;telemetry:boolean}>("/ready")}

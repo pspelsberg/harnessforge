@@ -1,0 +1,2 @@
+import {render,screen,fireEvent,waitFor} from "@testing-library/react"; import {it,expect,vi} from "vitest"; import {ExportDialog} from "./ExportDialog"; it("shows export failure without stack trace",async()=>{const onExport=vi.fn().mockRejectedValue(new Error("secret path"));render(<ExportDialog onExport={onExport}/>);fireEvent.click(screen.getByRole("button"));await waitFor(()=>expect(screen.getByRole("alert").textContent).toContain("Export failed"));expect(screen.queryByText("secret path")).toBeNull();});
+

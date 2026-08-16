@@ -1,0 +1,1 @@
+import {it,expect} from "vitest"; import {estimateTokens} from "./tokenRadar"; it("bounds token estimate and detects overage",()=>{const x=estimateTokens({system:"x".repeat(40)},5);expect(x.over).toBe(true);expect(x.total).toBeGreaterThan(5)});

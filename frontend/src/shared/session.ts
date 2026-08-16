@@ -1,0 +1,1 @@
+const KEY="harnessforge.session"; export function getSessionToken(){return sessionStorage.getItem(KEY)||""} export function setSessionToken(value:string){if(value.length>4096)throw new Error("token too long");sessionStorage.setItem(KEY,value)} export function clearSessionToken(){sessionStorage.removeItem(KEY)}

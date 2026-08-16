@@ -1,0 +1,1 @@
+import {it,expect} from "vitest"; import {canConnect} from "./connectionRules"; const n=(id:string,type:any)=>({id,type,position:{x:0,y:0},data:{config:{},ui:{}}}); it("allows only governed cycles",()=>{const a=n("a","llm"),b=n("b","llm");expect(canConnect(a,b,[])).toBe(true);expect(canConnect(b,a,[{id:"e",source:"a",target:"b"}])).toBe(false);});

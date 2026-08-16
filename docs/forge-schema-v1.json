@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "GraphEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "source_handle": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Handle"
+        },
+        "target_handle": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Handle"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "target"
+      ],
+      "title": "GraphEdge",
+      "type": "object"
+    },
+    "GraphNode": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "start",
+            "llm",
+            "rag",
+            "loop",
+            "reducer",
+            "tool",
+            "output"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/$defs/Position"
+        },
+        "data": {
+          "$ref": "#/$defs/NodeData"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "position",
+        "data"
+      ],
+      "title": "GraphNode",
+      "type": "object"
+    },
+    "GraphSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "review_only": {
+          "default": true,
+          "title": "Review Only",
+          "type": "boolean"
+        },
+        "external_dataflow_activated": {
+          "default": false,
+          "title": "External Dataflow Activated",
+          "type": "boolean"
+        },
+        "debug_mode": {
+          "default": false,
+          "title": "Debug Mode",
+          "type": "boolean"
+        },
+        "retention_days": {
+          "default": 30,
+          "maximum": 365,
+          "minimum": 1,
+          "title": "Retention Days",
+          "type": "integer"
+        }
+      },
+      "title": "GraphSettings",
+      "type": "object"
+    },
+    "NodeData": {
+      "additionalProperties": false,
+      "properties": {
+        "config": {
+          "title": "Config",
+          "type": "object"
+        },
+        "ui": {
+          "title": "Ui",
+          "type": "object"
+        }
+      },
+      "title": "NodeData",
+      "type": "object"
+    },
+    "Position": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "maximum": 1000000.0,
+          "minimum": -1000000.0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 1000000.0,
+          "minimum": -1000000.0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "Position",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "workspace_path": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Workspace Path",
+      "type": "string"
+    },
+    "nodes": {
+      "items": {
+        "$ref": "#/$defs/GraphNode"
+      },
+      "maxItems": 50,
+      "minItems": 2,
+      "title": "Nodes",
+      "type": "array"
+    },
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/GraphEdge"
+      },
+      "maxItems": 200,
+      "title": "Edges",
+      "type": "array"
+    },
+    "settings": {
+      "$ref": "#/$defs/GraphSettings"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "workspace_path",
+    "nodes",
+    "edges"
+  ],
+  "title": "ForgeGraph",
+  "type": "object"
+}

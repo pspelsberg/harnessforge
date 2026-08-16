@@ -1,0 +1,1 @@
+import {describe,it,expect,vi} from "vitest"; import {WsClient} from "./wsClient"; it("validates outgoing event names",()=>{const c=new WsClient("ws://x","t",vi.fn());expect(()=>c.send("<script>")).toThrow();});

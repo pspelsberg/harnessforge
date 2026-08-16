@@ -1,0 +1,1 @@
+import {apiJson} from "../../shared/api"; export function requestProviderApproval(provider:Record<string,unknown>,bindings:string[],token:string){return apiJson<{approval_fingerprint:string;provider:string;bindings:string[]}>("/api/provider/approval",{method:"POST",token,body:JSON.stringify({provider,bindings})})}

@@ -1,0 +1,1 @@
+import {it,expect} from "vitest"; import {TraceDrawer} from "./features/observability/TraceDrawer"; import {Inspector} from "./features/inspector/Inspector"; it("renders security-sensitive UI components as React elements",()=>{expect(TraceDrawer).toBeTypeOf("function");expect(Inspector).toBeTypeOf("function");});

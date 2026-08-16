@@ -1,0 +1,1 @@
+import {apiJson} from "../../shared/api"; export type RunControlMessage="run.pause"|"run.resume"|"run.cancel"; export function validateRunControl(type:string):RunControlMessage{if(type!=="run.pause"&&type!=="run.resume"&&type!=="run.cancel")throw new Error("invalid run control");return type as RunControlMessage}

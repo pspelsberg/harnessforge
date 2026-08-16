@@ -1,0 +1,1 @@
+if(!globalThis.ResizeObserver){globalThis.ResizeObserver=class{observe(){}unobserve(){}disconnect(){}} as typeof ResizeObserver}

@@ -1,0 +1,1 @@
+import {it,expect} from "vitest"; import {validateRunControl} from "./runControl"; it("accepts only bounded run controls",()=>{expect(validateRunControl("run.cancel")).toBe("run.cancel");expect(()=>validateRunControl("exec")) .toThrow();});

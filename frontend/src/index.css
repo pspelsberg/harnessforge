@@ -1,0 +1,8 @@
+:root { --color-forge-canvas:#0b0f17; --color-forge-panel:#111827; --color-forge-amber:#f59e0b; --color-forge-cyan:#38bdf8; --color-text-primary:#f8fafc; } * { box-sizing:border-box; } body { margin:0; background:var(--color-forge-canvas); color:var(--color-text-primary); font-family:system-ui,sans-serif; }
+button,input{margin:4px;padding:6px} nav{padding:8px;background:var(--color-forge-panel)}
+.forge-node{background:#151d2a;border:2px solid;padding:10px;min-width:140px;color:#f8fafc}.forge-node-running{box-shadow:0 0 16px #f59e0b;animation:pulse 1s infinite}.forge-node-success{box-shadow:0 0 12px #10b981}.forge-node-error{box-shadow:0 0 12px #ef4444}@keyframes pulse{50%{opacity:.65}}
+:root{--color-forge-canvas:#0b0f17;--color-forge-panel:#111827;--color-forge-node-bg:#151d2a;--color-forge-border:#334155;--color-forge-amber:#f59e0b;--color-forge-orange:#fb923c;--color-forge-gold:#fcd34d;--color-forge-cyan:#38bdf8;--color-forge-emerald:#10b981;--color-forge-crimson:#ef4444;--color-forge-yellow:#eab308;--color-text-primary:#f8fafc;--color-text-secondary:#94a3b8;--color-text-code:#fdba74}
+
+.forge-edge-active{animation:edge-flow .8s linear infinite}@keyframes edge-flow{to{stroke-dashoffset:-12}}
+
+.forge-node-warning{border-color:var(--color-forge-yellow)}

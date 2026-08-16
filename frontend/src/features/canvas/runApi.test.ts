@@ -1,0 +1,1 @@
+import {it,expect} from "vitest"; import {runGraph} from "./runApi"; it("bounds query before network",()=>{expect(()=>runGraph({},"x".repeat(200000),"t")).toThrow("query too large")});

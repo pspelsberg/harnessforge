@@ -1,0 +1,1 @@
+import {it,expect} from "vitest"; import {getSessionToken,setSessionToken,clearSessionToken} from "./session"; it("stores and clears session without exposing it",()=>{setSessionToken("secret");expect(getSessionToken()).toBe("secret");clearSessionToken();expect(getSessionToken()).toBe("")});

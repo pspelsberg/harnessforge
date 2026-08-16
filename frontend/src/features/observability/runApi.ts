@@ -1,0 +1,1 @@
+import {apiJson} from "../../shared/api"; export function deleteRun(id:string,token:string){return apiJson<void>(`/api/runs/${encodeURIComponent(id)}`,{method:"DELETE",token})} export function deleteAllRuns(token:string){return apiJson<void>("/api/runs",{method:"DELETE",token})}

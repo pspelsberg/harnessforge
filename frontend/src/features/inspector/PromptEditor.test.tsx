@@ -1,0 +1,1 @@
+import {render,screen,fireEvent} from "@testing-library/react"; import {it,expect,vi} from "vitest"; import {PromptEditor} from "./PromptEditor"; it("bounds prompt editing",()=>{const on=vi.fn();render(<PromptEditor value="x" onChange={on}/>);fireEvent.change(screen.getByLabelText("node prompt"),{target:{value:"hello"}});expect(on).toHaveBeenCalledWith("hello");});

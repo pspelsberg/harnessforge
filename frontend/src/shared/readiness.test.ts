@@ -1,0 +1,1 @@
+import {it,expect,vi} from "vitest"; import {fetchReadiness} from "./readiness"; it("reads readiness contract",async()=>{vi.spyOn(globalThis,"fetch").mockResolvedValue(new Response(JSON.stringify({status:"ready",localhost_only:true,telemetry:false})));expect((await fetchReadiness()).localhost_only).toBe(true);vi.restoreAllMocks();});

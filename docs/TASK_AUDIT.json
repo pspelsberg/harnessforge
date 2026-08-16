@@ -1,0 +1,779 @@
+{
+  "open_count": 113,
+  "items": [
+    {
+      "line": 26,
+      "task": "- [ ] Poetry / `requirements.txt` für Backend mit exakt gepinnten Dependencies aufsetzen (`fastapi`, `uvicorn`, `pydantic>=2.0`, `lancedb`, `httpx`, `aiosqlite`, `jinja2`, `pytest`, `pytest-asyncio`)",
+      "evidence_tokens": [
+        "lancedb"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 27,
+      "task": "- [ ] Frontend `package.json` aufsetzen (`@xyflow/react` / React Flow, `tailwindcss@latest`, `lucide-react`, `zustand`, `clsx`, `tailwind-merge`, `vitest`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 43,
+      "task": "- [ ] Auflösung über `os.path.realpath` / `Path.resolve(strict=True)` zur Verhinderung von Symlink-Escapes",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 44,
+      "task": "- [ ] Automatische Ablehnung von `..`-Traversal, System-Verzeichnissen (`/etc`, `/usr`, `/proc`), `.env`, `.ssh/`, `.git/`",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 50,
+      "task": "- [ ] Feature-Slices dürfen keine internen privaten Module anderer Feature-Slices importieren (nur öffentliche Verträge)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 51,
+      "task": "- [ ] Der Standalone-Code-Generator darf kein `fastapi` oder `react` in den Export einbinden",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 57,
+      "task": "- [ ] **1.1 Tailwind CSS v4 & Neural Forge Design Tokens**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 58,
+      "task": "- [ ] `frontend/src/index.css` mit den offiziellen Farb-Tokens einrichten:",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 66,
+      "task": "- [ ] Logo [`assets/logo.jpg`](file:///home/peppi/coding/Harnessforge/assets/logo.jpg) im App-Header einbinden",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 68,
+      "task": "- [ ] **1.2 React Flow Canvas Engine (`FlowCanvas.tsx`)**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 69,
+      "task": "- [ ] Infinite Zoom, Pan, Fit-to-View, Mini-Map und Dot-Grid (`#1e293b`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 70,
+      "task": "- [ ] Drag-and-Drop Node-Palette aus der linken Sidebar",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 71,
+      "task": "- [ ] Tastatur-Shortcuts: Undo (`Ctrl+Z`), Redo (`Ctrl+Y`), Löschen (`Del`/`Backspace`), Duplizieren (`Ctrl+D`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 72,
+      "task": "- [ ] Export / Import Dialog für `.forge.json` mit automatischem Review-Modus für importierte Dateien",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 74,
+      "task": "- [ ] **1.3 Custom Node Registry (Visual Anatomy & Handles)**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 75,
+      "task": "- [ ] `StartNode.tsx` (Start-Trigger, Input-Schema)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 76,
+      "task": "- [ ] `LLMNode.tsx` (Model-Selector, Temperature, File-Picker für `agents.md`, Prompt-Vorschau)",
+      "evidence_tokens": [
+        "prompt"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 77,
+      "task": "- [ ] `RAGNode.tsx` (LanceDB Path Picker, Table Dropdown, Top-K, Distance Metric)",
+      "evidence_tokens": [
+        "lancedb"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 78,
+      "task": "- [ ] `LoopNode.tsx` (Condition Editor, True/False-Handles, Max Iterations, Fallback-Handle)",
+      "evidence_tokens": [
+        "loop"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 79,
+      "task": "- [ ] `ReducerNode.tsx` (Action: `SET`/`APPEND_LIST`, Source-Path, Target-State-Key)",
+      "evidence_tokens": [
+        "reducer"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 80,
+      "task": "- [ ] `ToolNode.tsx` (Script-Picker, Args, Output-Limits, \"Local Trust Mode\"-Badge)",
+      "evidence_tokens": [
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 81,
+      "task": "- [ ] `OutputNode.tsx` (Endzustand, Final Output Payload)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 82,
+      "task": "- [ ] Dynamische Status-Glows pro Node: `Idle`, `Running (Amber Pulse)`, `Success (Emerald)`, `Error (Crimson)`",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 84,
+      "task": "- [ ] **1.4 Animierte Custom Edges (`ForgeEdge.tsx`)**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 85,
+      "task": "- [ ] SVG-Gradient-Kanten mit warmem Amber-Fluss (`#fcd34d` / `#fb923c`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 86,
+      "task": "- [ ] Animierte Partikelbewegung bei aktivem Datenfluss",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 87,
+      "task": "- [ ] Validierung visueller Verbindungsregeln (z. B. keine unzulässigen Cyclic-Verbindungen ohne Loop-Node)",
+      "evidence_tokens": [
+        "loop"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 89,
+      "task": "- [ ] **1.5 Inspector Panel & Local File System Explorer**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 90,
+      "task": "- [ ] Rechts angedockter, kollabierbarer Inspector für den selektierten Node",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 91,
+      "task": "- [ ] Lokaler Dateisystem-Browser (liest Pfade & `.md`-Dateien sicher über Backend-API)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 92,
+      "task": "- [ ] Live-Anzeige der geschätzten Token-Verteilung (System Prompt, RAG Context, Tool Output)",
+      "evidence_tokens": [
+        "tool",
+        "prompt"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 94,
+      "task": "- [ ] **1.6 Graph Validation Engine (Frontend & Backend)**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 95,
+      "task": "- [ ] Dreistufige Validierung: `Error` (blockiert Run/Export), `Warning` (gelber Badge, blockiert Export standardmäßig), `Info`",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 96,
+      "task": "- [ ] Validierungsregeln:",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 97,
+      "task": "- [ ] Genau 1 Start- und 1 Output-Node vorhanden",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 98,
+      "task": "- [ ] Keine verwaisten/unerreichbaren Nodes",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 99,
+      "task": "- [ ] Jeder Loop-Node hat gültige Condition + Pflicht-Fallback-Zweig",
+      "evidence_tokens": [
+        "loop"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 100,
+      "task": "- [ ] Alle referenzierten Dateien (`agents.md`, LanceDB, Tool-Skripte) existieren im Workspace",
+      "evidence_tokens": [
+        "lancedb",
+        "workspace",
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 101,
+      "task": "- [ ] Visuelle rote/gelbe Markierung fehlerhafter Nodes & Kanten direkt im Canvas",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 103,
+      "task": "- [ ] **1.7 Canvas State Management (Zustand) & Recovery**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 104,
+      "task": "- [ ] `useGraphStore` für Nodes, Edges, Selektion, History-Stack (Undo/Redo)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 105,
+      "task": "- [ ] Auto-Save im `localStorage` für Crash-Recovery (ohne Ausführungsberechtigung)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 106,
+      "task": "- [ ] Expliziter \"Save\"-Button für `.forge.json` ins Workspace-Verzeichnis",
+      "evidence_tokens": [
+        "workspace"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 125,
+      "task": "- [ ] Strikte Typprüfung & Pfadvalidierung (verhindert ungültige Keys und unkontrollierten State-Wuchs)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 130,
+      "task": "- [ ] Statusübergänge: `created -> validating -> running -> succeeded / failed / cancelled / limit_exceeded`",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 134,
+      "task": "- [ ] Deterministische Auswertung der Loop-Bedingung (String-Equals, Regex, Numeric Comparison, Key-Exists)",
+      "evidence_tokens": [
+        "loop"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 143,
+      "task": "- [ ] Sofortiger sauberer Abbruch und Logging bei Budget-Überschreitung",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 147,
+      "task": "- [ ] Laufende Subprozesse hart per Prozessgruppe (`SIGKILL` / `SIGTERM`) beenden",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 148,
+      "task": "- [ ] Aktive LLM-Streaming-Sockets sauber schließen",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 149,
+      "task": "- [ ] Status als `cancelled` in SQLite persistieren",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 156,
+      "task": "- [ ] Interface `BaseProviderAdapter` mit einheitlicher Methode `async def complete(request: CompletionRequest) -> AsyncIterator[CompletionChunk]`",
+      "evidence_tokens": [
+        "provider"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 157,
+      "task": "- [ ] Einheitliche Datenstruktur für Tokens, Kosten-Metadaten und normalisierte Fehlermeldungen",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 160,
+      "task": "- [ ] `OllamaAdapter`: Anbindung an lokales Ollama (`http://127.0.0.1:11434/api/chat`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 161,
+      "task": "- [ ] `LocalOpenAIAdapter`: Für vLLM, LM Studio, llama.cpp mit konfigurierbarer Loopback-URL",
+      "evidence_tokens": [
+        "loop"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 162,
+      "task": "- [ ] `NativeOpenAIAdapter`: Offizielle OpenAI-API (`https://api.openai.com/v1`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 163,
+      "task": "- [ ] `OpenRouterAdapter`: OpenRouter-API (`https://openrouter.ai/api/v1`) inkl. GPT-5.6 Luna / dynamischer Modell-ID und optionalen Referer-/Title-Headern",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 166,
+      "task": "- [ ] Strikte Host-Validierung für Provider-URLs:",
+      "evidence_tokens": [
+        "provider"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 173,
+      "task": "- [ ] Niemals Plaintext-Keys in `.forge.json`, Event-Logs, WebSocket-Streams oder exportiertem Code",
+      "evidence_tokens": [
+        "websocket",
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 174,
+      "task": "- [ ] Automatischer Regex-Maskierer für Bearer-Tokens & Auth-Header in allen Trace-Logs",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 176,
+      "task": "- [ ] **3.5 Lethal-Trifecta-Schutz & Datenfluss-Aktivierung**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 177,
+      "task": "- [ ] UI-Dialog zur expliziten Datenfluss-Aktivierung vor dem ersten Request an externe Provider",
+      "evidence_tokens": [
+        "provider"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 178,
+      "task": "- [ ] Klare Anzeige, welche State-Felder an den externen Provider gesendet werden",
+      "evidence_tokens": [
+        "provider"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 179,
+      "task": "- [ ] Automatische Invalidierung der Freigabe bei Änderungen an Provider, Modell, Endpoint oder State-Bindings",
+      "evidence_tokens": [
+        "provider"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 182,
+      "task": "- [ ] Sichere Prompt-Prioritätskette: `globaler Prompt -> agents.md -> Node-Prompt -> State-Variablen`",
+      "evidence_tokens": [
+        "prompt"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 183,
+      "task": "- [ ] Sichere String-Formatierung (`{query}`, `{retrieved_context}`, `{last_output}`) ohne unsicheres `eval()` / arbitrary Jinja-Code",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 190,
+      "task": "- [ ] Öffnet lokales LanceDB-Verzeichnis innerhalb der Workspace-Boundary",
+      "evidence_tokens": [
+        "lancedb",
+        "workspace"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 191,
+      "task": "- [ ] Listet Tabellennamen auf und liest Spalten-Metadaten aus",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 192,
+      "task": "- [ ] Auto-Erkennung von Text- und Vektorspalten",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 195,
+      "task": "- [ ] Führt Vektor-Suche und optionale Hybrid-Suche (Dense + BM25) aus",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 204,
+      "task": "- [ ] System-Prompt stellt klar, dass RAG-Inhalte reine Referenzdaten sind und keine Steuerbefehle überschreiben dürfen",
+      "evidence_tokens": [
+        "prompt"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 205,
+      "task": "- [ ] RAG-Inhalte dürfen niemals Systemprompts, Graph-Topologie oder Tool-Freigaben manipulieren",
+      "evidence_tokens": [
+        "tool",
+        "prompt"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 212,
+      "task": "- [ ] Ausführung lokaler Skripte (`.py`, `.sh`, `.js`) innerhalb des Workspaces",
+      "evidence_tokens": [
+        "workspace"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 214,
+      "task": "- [ ] Arbeitsverzeichnis strikt auf den Workspace beschränkt",
+      "evidence_tokens": [
+        "workspace"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 217,
+      "task": "- [ ] Sichtbare Warnung im Tool-Node: \"Lokaler Vertrauensmodus (Subprozess ohne OS-Sandbox)\"",
+      "evidence_tokens": [
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 218,
+      "task": "- [ ] Minimierte Environment-Vererbung (API-Keys und Session-Tokens werden standardmäßig aus `env` entfernt)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 222,
+      "task": "- [ ] Berechnung eines SHA256-Hashes über Skriptpfad, mtime/Inhalt, Argumente, Env-Allowlist, Schreibverzeichnisse und Limits",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 223,
+      "task": "- [ ] Tool darf nur ausgeführt werden, wenn der `config_hash` im Canvas manuell bestätigt wurde",
+      "evidence_tokens": [
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 224,
+      "task": "- [ ] Jede Datei- oder Konfigurationsänderung invalidiert den Status sofort",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 229,
+      "task": "- [ ] Erzeugung einer eigenen Prozessgruppe (`preexec_fn=os.setsid` unter Unix) für zuverlässiges Killen aller Child-Prozesse bei Timeout/Abbruch",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 231,
+      "task": "- [ ] **5.5 Deklarative Schreibrechte (Allowlist)**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 232,
+      "task": "- [ ] Standardmäßig rein read-only",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 233,
+      "task": "- [ ] Schreibrechte müssen explizit für deklarierte Workspace-Unterverzeichnisse aktiviert werden",
+      "evidence_tokens": [
+        "workspace"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 234,
+      "task": "- [ ] Schreibversuche außerhalb des Workspaces oder in `.env`/Systempfade führen zum sofortigen Tool-Fehler",
+      "evidence_tokens": [
+        "workspace",
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 240,
+      "task": "- [ ] **6.1 WebSocket Event Server (`observability/ws_server.py`)**",
+      "evidence_tokens": [
+        "websocket"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 241,
+      "task": "- [ ] Authentifizierung via Session-Token im Handshake",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 242,
+      "task": "- [ ] Bidirektionale Events: Run starten, pausieren, abbrechen",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 243,
+      "task": "- [ ] Normalisierte Streaming-Events:",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 248,
+      "task": "- [ ] **6.2 Live UI Inspection & Trace Viewer (Bottom Drawer)**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 249,
+      "task": "- [ ] Live-Highlighting des aktiven Knotens im Canvas (Forge Amber Pulse)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 250,
+      "task": "- [ ] Terminal-Stream für LLM-Tokens und Tool-Logs",
+      "evidence_tokens": [
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 251,
+      "task": "- [ ] Token- und Budget-Radar (Visualisierung von System-, RAG- und History-Tokens)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 252,
+      "task": "- [ ] Reines Text- und JSON-Rendering (kein `dangerouslySetInnerHTML` zur XSS-Vermeidung)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 257,
+      "task": "- [ ] Standardmäßig gekürzte und redigierte Daten (Maskierung sensibler Strings)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 258,
+      "task": "- [ ] Vollständige Snapshots nur bei explizitem lokalem Debug-Flag",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 261,
+      "task": "- [ ] Keine externe Telemetrie oder Tracking",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 269,
+      "task": "- [ ] **7.1 Export-Validierungs-Pipeline (`export/validator.py`)**",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 270,
+      "task": "- [ ] Strikte Prüfung vor Export: Blockiert Export bei unvollständigen Nodes, fehlenden Fallbacks oder ungültigen Pfaden",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 273,
+      "task": "- [ ] **7.2 Standalone Python Code Generator (`export/generator.py`)**",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 274,
+      "task": "- [ ] Jinja2-Template `templates/standalone_runner.py.jinja`",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 275,
+      "task": "- [ ] Generiert eigenständiges `agent_runner.py` mit:",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 276,
+      "task": "- [ ] Eingebetteter, validierter Graph-Topologie",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 277,
+      "task": "- [ ] Autarker Async-State-Machine",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 278,
+      "task": "- [ ] Provider-Aufrufen via `httpx`",
+      "evidence_tokens": [
+        "provider"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 279,
+      "task": "- [ ] LanceDB-Abfrage via nativem `lancedb`",
+      "evidence_tokens": [
+        "lancedb"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 280,
+      "task": "- [ ] Tool-Subprozess-Steuerung mit Timeout & Output-Cap",
+      "evidence_tokens": [
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 282,
+      "task": "- [ ] Sauberem stdout-Streaming & Exit-Codes (0 bei Erfolg, 1 bei Abbruch, 2 bei Limit)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 286,
+      "task": "- [ ] Erzeugt `requirements.txt` mit exakt gepinnten Dependencies (`httpx==...`, `lancedb==...`, `pydantic==...`)",
+      "evidence_tokens": [
+        "lancedb"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 287,
+      "task": "- [ ] Erzeugt `.env.example` mit den benötigten Variablen (`OPENAI_API_KEY=`, `OPENROUTER_API_KEY=`)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 310,
+      "task": "- [ ] **8.4 End-to-End Verification Run**",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 311,
+      "task": "- [ ] Graph im Canvas erstellen: `Start -> LanceDB RAG -> LLM Call (agents.md) -> Loop (Max 3) -> State Reducer -> Tool -> Output`",
+      "evidence_tokens": [
+        "lancedb",
+        "reducer",
+        "loop",
+        "tool"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 312,
+      "task": "- [ ] Live-Ausführung auf localhost beobachten (Glow-Effekte, Streaming, SQLite-Events)",
+      "evidence_tokens": [],
+      "status": "open"
+    },
+    {
+      "line": 313,
+      "task": "- [ ] Standalone-Bundle exportieren und isoliert in einer frischen virtuellen Python-Umgebung ausführen:",
+      "evidence_tokens": [
+        "export"
+      ],
+      "status": "open"
+    },
+    {
+      "line": 317,
+      "task": "- [ ] Überprüfen, ob das generierte Skript ohne Fehler durchläuft und den erwarteten Output liefert",
+      "evidence_tokens": [],
+      "status": "open"
+    }
+  ]
+}

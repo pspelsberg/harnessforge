@@ -1,0 +1,1 @@
+import {render,screen} from "@testing-library/react"; import {it,expect} from "vitest"; import {App} from "./App"; it("renders logo and review-mode controls",()=>{render(<App/>);expect(screen.getByAltText("HarnessForge logo")).toBeTruthy();expect(screen.getByText("Review mode")).toBeTruthy();});
