@@ -19,3 +19,10 @@
 - Full task-board checkbox completion requires an explicit product decision for deferred production features and is not inferred from test count.
 
 See ADR-008 for the accepted local release gate and explicit non-claims.
+
+
+## Phase-2 Release Audit
+
+Die Phase-2-Slices bleiben opt-in und verändern das MVP nicht implizit. Sicherheitsnachweise umfassen deterministische Regressionen für SSRF/Workspace-Pfade, Prompt-Injection, Redaction, Binary-/Large-File-DoS, Approval Replay/Expiry/TOCTOU, Fork State Poisoning, Refiner Patch-/Rollback-Races, Harness Infinite Repair Loops und Git Push Gates. Supply-Chain-Grundlage: exakte Backend-Versionen, reproduzierbarer Frontend-Lockfile-Build und lokale, hashvalidierte Harness-Templates.
+
+Rollback: Phase-2-Routen können deaktiviert werden; MVP-Graph-, Execution-, Export- und Provider-Pfade bleiben ohne Phase-2-Aktivierung funktionsfähig.

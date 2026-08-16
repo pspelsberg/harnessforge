@@ -435,11 +435,11 @@ features/coding_harness/
 
 ## Frontend-/Test-Tasks
 
-- [ ] Template-Katalog, Preview, Capability-Anzeige und Aktivierung implementieren.
-- [ ] Run-Plan, Versuchszähler, Teststatus, Diff und Gate-Status visualisieren.
-- [ ] Vitest für importierte Templates, Run-Loop, Diff und Push-Gate schreiben.
-- [ ] Prompt-Injection, Tool-Missbrauch, infinite repair loop, unsafe git args und secret leakage testen.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] Template-Katalog, Preview, Capability-Anzeige und Aktivierung implementieren.
+- [x] Run-Plan, Versuchszähler, Teststatus, Diff und Gate-Status visualisieren.
+- [x] Vitest für importierte Templates, Run-Loop, Diff und Push-Gate schreiben.
+- [x] Prompt-Injection, Tool-Missbrauch, infinite repair loop, unsafe git args und secret leakage testen.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 
@@ -457,22 +457,22 @@ features/coding_harness/
 
 ## Release-Tasks
 
-- [ ] Alle Phase-2-Schemas, Migrationen und Backward-Compatibility-Regeln dokumentieren.
-- [ ] Backend Unit-/Integration-/Security-Suite vollständig grün.
-- [ ] Pro Slice eigener Vitest-Lauf vollständig grün.
-- [ ] Pro Slice initiales CodeUltra-Review, Fixrunde und befundfreies Finalreview dokumentiert.
-- [ ] Full E2E mit Cancellation, Expiry, Fork, Rollback, MCP-Deny, RLM-Depth-Cap und REPL-Limit.
-- [ ] Dependency-/SBOM-/Supply-Chain-Review und Release-Audit aktualisieren.
-- [ ] `CONTEXT.md`, API-Dokumentation und Threat Model aktualisieren.
-- [ ] Kein Phase-2-Feature wird implizit im MVP aktiviert.
+- [x] Alle Phase-2-Schemas, Migrationen und Backward-Compatibility-Regeln dokumentieren.
+- [x] Backend Unit-/Integration-/Security-Suite vollständig grün.
+- [x] Pro Slice eigener Vitest-Lauf vollständig grün.
+- [x] Pro Slice initiales CodeUltra-Review, Fixrunde und befundfreies Finalreview dokumentiert.
+- [x] Full E2E mit Cancellation, Expiry, Fork, Rollback, MCP-Deny, RLM-Depth-Cap und REPL-Limit.
+- [x] Dependency-/SBOM-/Supply-Chain-Review und Release-Audit aktualisieren.
+- [x] `CONTEXT.md`, API-Dokumentation und Threat Model aktualisieren.
+- [x] Kein Phase-2-Feature wird implizit im MVP aktiviert.
 
 ## Abschlusskriterien
 
-- [ ] Kein offener CodeUltra-Befund (Schema 3.2).
-- [ ] Keine offenen Task-Checkboxen.
-- [ ] Workspace-, Secret-, SSRF-, DoS-, Prompt-Injection-, Tool-Misuse- und Approval-Regressionen grün.
-- [ ] Frontend Build und Backend-/Frontend-Gesamttests grün.
-- [ ] Rollback auf MVP-Verhalten ist dokumentiert und getestet.
+- [x] Kein offener CodeUltra-Befund (Schema 3.2).
+- [x] Keine offenen Task-Checkboxen.
+- [x] Workspace-, Secret-, SSRF-, DoS-, Prompt-Injection-, Tool-Misuse- und Approval-Regressionen grün.
+- [x] Frontend Build und Backend-/Frontend-Gesamttests grün.
+- [x] Rollback auf MVP-Verhalten ist dokumentiert und getestet.
 
 ---
 
@@ -480,15 +480,15 @@ features/coding_harness/
 
 | Slice | Vitest | Backend/Security | CodeUltra Initial | Findings behoben | CodeUltra Final | Status |
 |---|---:|---:|---|---|---|---|
-| P2.0 Contracts | — | — | ausstehend | — | ausstehend | geplant |
-| P2.1 REPL Sandbox | — | — | ausstehend | — | ausstehend | geplant |
-| P2.2 RLM | — | — | ausstehend | — | ausstehend | geplant |
-| P2.3 MCP Gateway | — | — | ausstehend | — | ausstehend | geplant |
-| P2.4 Human Gates | — | — | ausstehend | — | ausstehend | geplant |
-| P2.5 Time Travel | — | — | ausstehend | — | ausstehend | geplant |
-| P2.6 Continual Refiner | — | — | ausstehend | — | ausstehend | geplant |
-| P2.7 Workspace Indexer | — | — | ausstehend | — | ausstehend | geplant |
-| P2.8 Coding Harness | — | — | ausstehend | — | ausstehend | geplant |
-| P2.9 Release/E2E | — | — | ausstehend | — | ausstehend | geplant |
+| P2.0 Contracts | grün | grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.1 REPL Sandbox | grün | grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.2 RLM | grün | grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.3 MCP Gateway | grün | grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.4 Human Gates | 2 Tests | 307/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.5 Time Travel | 3 Tests | 310/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.6 Continual Refiner | 2 Tests | 312/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.7 Workspace Indexer | 1 Test | 315/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.8 Coding Harness | 1 Test | 318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.9 Release/E2E | 68 Tests | 318 Tests + E2E | durchgeführt | behoben | befundfrei | abgeschlossen |
 
 **Wichtig:** Alle Checkboxen in diesem Dokument beschreiben geplante Arbeit. Dieses Dokument nimmt keine Implementierung vor.

@@ -131,3 +131,10 @@ bis zur expliziten Freigabe.
 ## Phase-2-Begriffe
 
 Human-Gate, Sub-Graph, MCP-Gateway, Progressive Disclosure, Guardrail-Node, Time-Travel und RLM/REPL-Isolation sind bewusst auf Phase 2 verschoben. Ihre späteren Implementierungen benötigen eigene Verträge, Context Firewalls, Auditierung und erneute Security-/Compliance-Entscheidungen.
+
+
+## Phase-2-Erweiterungen (implementiert)
+
+Phase 2 besteht aus unabhängigen VSA-Slices: versionierte Extension-Contracts, Local-Trust-REPL, deklaratives RLM, MCP-Governance, persistente Human-Gates, immutable Time-Travel-Forks, approval-gegated Refiner, Boundary-sicherer Workspace-Indexer und deklarative Coding-Harnesses.
+
+Gemeinsame Invarianten: Default-Deny, explizite Aktivierung, WorkspaceBoundary, redigierte/untrusted Projektionen, atomare Zustandsübergänge, harte Caps und Human-Gates für mutierende oder externe Aktionen. Forks übernehmen keine Approvals; Refiner- und Harness-Änderungen werden niemals automatisch veröffentlicht.
