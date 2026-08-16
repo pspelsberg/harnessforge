@@ -18,9 +18,16 @@ def validate_provider_url(value: str, kind: ProviderKind):
     is_loopback=False
     try: is_loopback=ip_address(host).is_loopback
     except ValueError: is_loopback=host=="localhost"
-    if kind in {ProviderKind.OLLAMA,ProviderKind.LOCAL_OPENAI} and not is_loopback: raise ProviderConfigError("local providers require loopback")
-    if kind==ProviderKind.OPENAI and (host!="api.openai.com" or parsed.scheme!="https"): raise ProviderConfigError("OpenAI endpoint is fixed")
-    if kind==ProviderKind.OPENROUTER and (host!="openrouter.ai" or parsed.scheme!="https"): raise ProviderConfigError("OpenRouter endpoint is fixed")
+    if parsed.port is not None and not 1 <= parsed.port <= 65535:
+        raise ProviderConfigError("invalid provider port")
+    if kind in {ProviderKind.OLLAMA,ProviderKind.LOCAL_OPENAI} and (not is_loopback or parsed.scheme != "http"):
+        raise ProviderConfigError("local providers require HTTP loopback")
+    if kind==ProviderKind.OPENAI:
+        if host!="api.openai.com" or parsed.scheme!="https" or parsed.port not in {None,443} or parsed.path.rstrip("/")!="/v1":
+            raise ProviderConfigError("OpenAI endpoint is fixed")
+    if kind==ProviderKind.OPENROUTER:
+        if host!="openrouter.ai" or parsed.scheme!="https" or parsed.port not in {None,443} or parsed.path.rstrip("/")!="/api/v1":
+            raise ProviderConfigError("OpenRouter endpoint is fixed")
     if not is_loopback and parsed.scheme!="https": raise ProviderConfigError("external providers require TLS")
     return parsed
 class ProviderConfig(BaseModel):

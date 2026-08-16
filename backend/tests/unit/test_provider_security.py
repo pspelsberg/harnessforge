@@ -42,3 +42,9 @@ def test_provider_copy_cannot_route_wrong_secret_environment(monkeypatch):
     original=ProviderConfig(kind=ProviderKind.OPENAI,base_url="https://api.openai.com/v1",model="x",timeout_seconds=2)
     copied=original.model_copy(update={"kind":ProviderKind.OPENROUTER,"base_url":"https://openrouter.ai/api/v1"})
     assert copied.secret_env=="OPENROUTER_API_KEY"
+
+
+def test_external_provider_endpoint_path_and_port_are_fixed():
+    with pytest.raises(ProviderConfigError): validate_provider_url("https://api.openai.com:8443/v1", ProviderKind.OPENAI)
+    with pytest.raises(ProviderConfigError): validate_provider_url("https://api.openai.com/v1/other", ProviderKind.OPENAI)
+    with pytest.raises(ProviderConfigError): validate_provider_url("https://openrouter.ai/api/v1/other", ProviderKind.OPENROUTER)

@@ -12,3 +12,8 @@ def test_checkpoint_api_requires_auth(tmp_path):
  assert c.post("/api/runs/r/checkpoints",json={"step":1,"payload":{"x":1}},headers={"host":"127.0.0.1"}).status_code==401
  assert c.post("/api/runs/r/checkpoints",json={"step":1,"payload":{"x":1}},headers=h).status_code==201
  assert c.get("/api/runs/r/checkpoints",headers=h).json()["checkpoints"][0]["step"]==1
+
+
+def test_bearer_tokens_are_redacted_even_without_header_label():
+ from app.core.security.redaction import redact
+ assert "sensitive" not in redact("stream payload Bearer sensitive")
