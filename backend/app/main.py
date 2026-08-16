@@ -154,7 +154,7 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     async def retrieval_query(request:RetrievalRequest):
         try:
             path=request.path; table=request.table; vector=request.vector; top_k=request.top_k
-            return {"results":LanceQueryRunner(workspace or Path.cwd()).search(path,table,vector,top_k=top_k)}
+            return {"results":LanceQueryRunner(workspace or Path.cwd()).search(path,table,vector,top_k=top_k,text_query=request.text_query,hybrid=request.hybrid)}
         except (KeyError,TypeError,RetrievalQueryError): raise HTTPException(status_code=400,detail="invalid retrieval request")
     async def _run_store():
         store=RunStore(Path(workspace or Path.cwd()) / ".harnessforge" / "runs.db"); await store.initialize(); return store

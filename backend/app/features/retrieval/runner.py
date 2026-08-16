@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from math import isfinite
 from app.core.config import CAPS
+from app.core.json_values import validate_json_value
 from app.features.retrieval.context import UntrustedContext
 class RetrievalError(ValueError): pass
 
@@ -20,6 +21,10 @@ def normalize_results(rows: list[dict[str, Any]], *, top_k: int = 5, max_chunk_b
         except (TypeError,ValueError): score=0.0
         if not isfinite(score): raise RetrievalError("retrieval score must be finite")
         metadata={str(k):v for k,v in row.items() if k not in {"text","score","_distance","vector"}}
+        try:
+            validate_json_value(metadata)
+        except ValueError as exc:
+            raise RetrievalError("retrieval metadata is not JSON-safe") from exc
         if len(str(metadata).encode("utf-8")) > max_chunk_bytes: raise RetrievalError("retrieval metadata too large")
         result.append({"text":text,"score":score,"metadata":metadata})
     return result

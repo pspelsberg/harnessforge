@@ -25,3 +25,7 @@ def test_metadata_is_bounded():
 
 def test_retrieval_rejects_non_finite_scores():
     with pytest.raises(RetrievalError): normalize_results([{"text":"x","score":float("nan")}])
+
+
+def test_metadata_must_be_json_safe_before_prompt_formatting():
+    with pytest.raises(RetrievalError): normalize_results([{"text":"x","metadata":object()}])
