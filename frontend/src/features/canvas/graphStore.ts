@@ -31,6 +31,7 @@ export function validateGraph(nodes:ForgeNode[],edges:ForgeEdge[]):ValidationIss
   const sourceNode=nodes.find(node=>node.id===edge.source)!;
   if(edge.sourceHandle!==undefined&&(!["true","false","fallback"].includes(edge.sourceHandle)||sourceNode.type!=="loop"))issues.push({severity:"error",message:"edge handle is invalid",nodeId:edge.source});
   if(edge.sourceHandle!==undefined&&edge.sourceHandle.length>64)issues.push({severity:"error",message:"edge handle is too long",nodeId:edge.source});
+  if(edge.targetHandle!==undefined&&edge.targetHandle!=="default")issues.push({severity:"error",message:"target edge handle is invalid",nodeId:edge.target});
   outgoing.get(edge.source)!.push(edge);
  }
  const starts=nodes.filter(n=>n.type==="start"),outputs=nodes.filter(n=>n.type==="output");
