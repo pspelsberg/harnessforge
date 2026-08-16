@@ -1,5 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest"; import {useGraphStore, MAX_NODES, importGraphJson} from "./graphStore"; describe("graph store",()=>{beforeEach(()=>useGraphStore.setState({nodes:[],edges:[],reviewOnly:true,selectedNodeId:null})); it("starts review-only and replaces graph",()=>{useGraphStore.getState().setGraph([{id:"s",type:"start",position:{x:0,y:0},data:{config:{},ui:{}}}],[]); expect(useGraphStore.getState().reviewOnly).toBe(true); expect(useGraphStore.getState().nodes).toHaveLength(1);}); it("rejects oversized or malformed imports and stays review-only",()=>{expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:Array.from({length:MAX_NODES+1},(_,i)=>({id:String(i)})),edges:[]}))).toThrow(); expect(()=>importGraphJson("{bad")).toThrow(); expect(importGraphJson(JSON.stringify({schema_version:"1",nodes:[],edges:[]})).reviewOnly).toBe(true); expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"x",type:"evil"}],edges:[]}))).toThrow(); expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"x",type:"start",position:{x:0,y:0},data:{}}],edges:[{id:"e",source:"x",target:"missing"}]}))).toThrow();});});
-import {validateGraph} from "./graphStore";
+import { beforeEach, describe, expect, it } from "vitest"; import {useGraphStore, MAX_NODES, importGraphJson, type NodeType, validateGraph} from "./graphStore"; describe("graph store",()=>{beforeEach(()=>useGraphStore.setState({nodes:[],edges:[],reviewOnly:true,selectedNodeId:null})); it("starts review-only and replaces graph",()=>{useGraphStore.getState().setGraph([{id:"s",type:"start",position:{x:0,y:0},data:{config:{},ui:{}}}],[]); expect(useGraphStore.getState().reviewOnly).toBe(true); expect(useGraphStore.getState().nodes).toHaveLength(1);}); it("rejects oversized or malformed imports and stays review-only",()=>{expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:Array.from({length:MAX_NODES+1},(_,i)=>({id:String(i)})),edges:[]}))).toThrow(); expect(()=>importGraphJson("{bad")).toThrow(); expect(importGraphJson(JSON.stringify({schema_version:"1",nodes:[],edges:[]})).reviewOnly).toBe(true); expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"x",type:"evil"}],edges:[]}))).toThrow(); expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"x",type:"start",position:{x:0,y:0},data:{}}],edges:[{id:"e",source:"x",target:"missing"}]}))).toThrow();});});
 it("validates reachability and supports undo/redo",()=>{const store=useGraphStore.getState(); const node={id:"s",type:"start" as const,position:{x:0,y:0},data:{config:{},ui:{}}}; store.setGraph([node],[]); expect(validateGraph([node],[])[0].severity).toBe("error"); store.setGraph([],[]); store.undo(); expect(useGraphStore.getState().nodes).toHaveLength(1); store.redo(); expect(useGraphStore.getState().nodes).toHaveLength(0);});
 
 
@@ -36,3 +35,17 @@ it("requires schema version and preserves approval during live status updates",(
 
 it("rejects oversized string config values",()=>{const config={x:"a".repeat(200000)};expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"s",type:"start",position:{x:0,y:0},data:{config,ui:{}}}],edges:[]}))).toThrow();});
 
+
+
+it("rejects secret-shaped runtime config and malformed node surfaces",()=>{
+ expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"s",type:"start",position:{x:0,y:0},data:{config:{api_key:"secret"},ui:{}}}],edges:[]}))).toThrow();
+ expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"s",type:"start",position:{x:0,y:0},data:{config:[],ui:{}}}],edges:[]}))).toThrow();
+});
+
+it("reports governed loop requirements and ungoverned cycles",()=>{
+ const n=(id:string,type:NodeType,config:Record<string,unknown>={})=>({id,type,position:{x:0,y:0},data:{config,ui:{}}});
+ const nodes=[n("s","start"),n("loop","loop",{max_iterations:3,fallback:"o",condition_type:"exists"}),n("o","output")];
+ expect(validateGraph(nodes,[{id:"a",source:"s",target:"loop"},{id:"b",source:"loop",target:"o",sourceHandle:"fallback"}]).some(i=>i.message.includes("true, false"))).toBe(true);
+ const a=n("a","llm"),b=n("b","llm");
+ const cycleIssues=validateGraph([a,b,n("s2","start"),n("o2","output")],[{id:"1",source:"s2",target:"a"},{id:"2",source:"a",target:"b"},{id:"3",source:"b",target:"a"},{id:"4",source:"b",target:"o2"}]); expect(cycleIssues.some(i=>i.message.includes("cycles"))).toBe(true);
+});
