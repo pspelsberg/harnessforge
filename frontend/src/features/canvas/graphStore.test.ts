@@ -49,3 +49,10 @@ it("reports governed loop requirements and ungoverned cycles",()=>{
  const a=n("a","llm"),b=n("b","llm");
  const cycleIssues=validateGraph([a,b,n("s2","start"),n("o2","output")],[{id:"1",source:"s2",target:"a"},{id:"2",source:"a",target:"b"},{id:"3",source:"b",target:"a"},{id:"4",source:"b",target:"o2"}]); expect(cycleIssues.some(i=>i.message.includes("cycles"))).toBe(true);
 });
+
+
+it("reports invalid edge handles instead of accepting arbitrary routing",()=>{
+ const node=(id:string,type:NodeType)=>({id,type,position:{x:0,y:0},data:{config:{},ui:{}}});
+ const issues=validateGraph([node("s","start"),node("o","output")],[{id:"e",source:"s",target:"o",sourceHandle:"forged"}]);
+ expect(issues.some(issue=>issue.message.includes("edge handle"))).toBe(true);
+});
