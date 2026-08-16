@@ -211,11 +211,11 @@ features/rlm/
 
 ## Security-/Test-Tasks
 
-- [ ] Prompt-Injection in Child-Context, Context-Leakage und Parent-Policy-Override regressionssicher testen.
-- [ ] Rekursion, Fan-out, Cascading Failure, Retry-Storm und Token-/Kostenlimits testen.
-- [ ] Falsche Child-Result-Schemas, unbekannte Bindings und Cross-run-Zugriff ablehnen.
-- [ ] Vitest: Node-Config, Budgetanzeige, Child-Lifecycle und sichere Ergebnisdarstellung.
-- [ ] CodeUltra Review → Fix → erneutes Review ohne Findings.
+- [x] Prompt-Injection in Child-Context, Context-Leakage und Parent-Policy-Override regressionssicher testen.
+- [x] Rekursion, Fan-out, Cascading Failure, Retry-Storm und Token-/Kostenlimits testen.
+- [x] Falsche Child-Result-Schemas, unbekannte Bindings und Cross-run-Zugriff ablehnen.
+- [x] Vitest: Node-Config, Budgetanzeige, Child-Lifecycle und sichere Ergebnisdarstellung.
+- [x] CodeUltra Review → Fix → erneutes Review ohne Findings.
 
 ---
 

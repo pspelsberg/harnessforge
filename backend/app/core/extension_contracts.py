@@ -70,6 +70,8 @@ class ExtensionPolicy(BaseModel):
 
     max_rlm_depth: int = Field(default=3, ge=1, le=3)
     max_rlm_children: int = Field(default=8, ge=1, le=32)
+    max_rlm_total_tokens: int = Field(default=8192, ge=1, le=65_536)
+    max_rlm_seconds: float = Field(default=120.0, gt=0, le=CAPS.max_run_seconds)
     max_context_bytes: int = Field(default=128 * 1024, ge=1024, le=CAPS.max_state_bytes)
     max_event_bytes: int = Field(default=CAPS.max_event_bytes, ge=1024, le=CAPS.max_state_bytes)
     max_repl_code_bytes: int = Field(default=64 * 1024, ge=1024, le=CAPS.max_state_bytes)
