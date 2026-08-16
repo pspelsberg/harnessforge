@@ -18,3 +18,13 @@ def test_inspector_fails_closed_for_missing_dependency(tmp_path,monkeypatch):
     monkeypatch.setattr("app.features.retrieval.inspector.lancedb", None)
     with pytest.raises(RetrievalError,match="LanceDB"):
         LanceInspector(tmp_path).list_tables("db")
+
+
+def test_inspector_detects_case_variant_columns(tmp_path,monkeypatch):
+    (tmp_path/"db").mkdir()
+    class DB:
+        def table_names(self): return ["docs"]
+        def open_table(self,name): return type("T",(),{"schema":{"fields":[{"name":"Content"},{"name":"Embedding"}]}})()
+    monkeypatch.setattr("app.features.retrieval.inspector.lancedb",type("L",(),{"connect":lambda path,**kwargs:DB()}))
+    info=LanceInspector(tmp_path).describe("db","docs")
+    assert info["text_column"]=="Content" and info["vector_column"]=="Embedding"

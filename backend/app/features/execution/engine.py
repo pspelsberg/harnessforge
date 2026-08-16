@@ -10,7 +10,7 @@ from app.features.graph_authoring.contracts import ForgeGraph, GraphNode
 from app.features.graph_authoring.validator import validate_graph
 from app.features.execution.state import AgentState, Reducer, ReducerOp, apply_reducer
 from app.features.execution.ports import ExecutionServices
-from app.features.retrieval.context import UntrustedContext, format_untrusted_context
+from app.features.retrieval.context import UntrustedContext, format_untrusted_context, UNTRUSTED_CONTEXT_SYSTEM_INSTRUCTION
 
 class RunState(StrEnum): CREATED="created"; VALIDATING="validating"; RUNNING="running"; SUCCEEDED="succeeded"; FAILED="failed"; CANCELLED="cancelled"; LIMIT_EXCEEDED="limit_exceeded"
 class RunError(RuntimeError): pass
@@ -74,7 +74,7 @@ class GraphRunner:
                         prompt += "\n" + format_untrusted_context(contexts)
                     chunks=[]
                     approval=(self.services.approvals or {}).get(node.id,self.services.provider_approval); bindings=(self.services.bindings or {}).get(node.id,self.services.provider_bindings or [])
-                    async for chunk in provider.complete(ProviderRequest(messages=[{"role":"user","content":prompt}]),approval=approval,bindings=bindings): chunks.append(chunk.text)
+                    async for chunk in provider.complete(ProviderRequest(messages=[{"role":"system","content":UNTRUSTED_CONTEXT_SYSTEM_INSTRUCTION},{"role":"user","content":prompt}]),approval=approval,bindings=bindings): chunks.append(chunk.text)
                     state.last_output="".join(chunks); current=self._choose(targets,None)
                 elif node.type == "tool":
                     tool=(self.services.tools or {}).get(node.id,self.services.tool)

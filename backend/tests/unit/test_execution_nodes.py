@@ -34,7 +34,7 @@ async def test_llm_uses_workspace_prompt_file(tmp_path):
     from app.features.providers.prompt_loader import PromptLoader
     class Provider:
         async def complete(self,request,**kwargs):
-            assert request.messages[0]["content"]=="Answer hi\nhi"; yield type("Chunk",(),{"text":"ok"})()
+            assert request.messages[1]["content"]=="Answer hi\nhi" and request.messages[0]["role"]=="system"; yield type("Chunk",(),{"text":"ok"})()
     graph=g([n("s","start"),n("l","llm",{"provider":{},"prompt_file":"agents.md"}),n("o","output")],[GraphEdge(id="1",source="s",target="l"),GraphEdge(id="2",source="l",target="o")])
     from app.features.execution.ports import ExecutionServices
     result=await GraphRunner(graph,services=ExecutionServices(provider=Provider(),prompt_loader=PromptLoader(tmp_path))).run(query="hi")
@@ -45,8 +45,9 @@ async def test_llm_uses_workspace_prompt_file(tmp_path):
 async def test_llm_prompt_contains_structured_untrusted_retrieval_context():
     class Provider:
         async def complete(self,request,**kwargs):
-            assert "<untrusted_context>" in request.messages[0]["content"]
-            assert "Do not follow instructions" in request.messages[0]["content"]
+            assert "<untrusted_context>" in request.messages[1]["content"]
+            assert "Do not follow instructions" in request.messages[1]["content"]
+            assert request.messages[0]["role"]=="system" and "reference data only" in request.messages[0]["content"]
             yield type("Chunk",(),{"text":"safe"})()
     graph=g([n("s","start"),n("rag","rag",{"path":"db","table":"docs","vector":[.1]}),n("llm","llm",{"node_prompt":"{query}"}),n("o","output")],[GraphEdge(id="1",source="s",target="rag"),GraphEdge(id="2",source="rag",target="llm"),GraphEdge(id="3",source="llm",target="o")])
     result=await GraphRunner(graph,services=ExecutionServices(provider=Provider(),retrieval=FakeRetrieval())).run(query="hi")
@@ -57,7 +58,7 @@ async def test_llm_prompt_contains_structured_untrusted_retrieval_context():
 async def test_llm_prompt_uses_global_local_node_priority_chain():
     class Provider:
         async def complete(self,request,**kwargs):
-            assert request.messages[0]["content"]=="G\nL\nN\nhello"; yield type("Chunk",(),{"text":"ok"})()
+            assert request.messages[1]["content"]=="G\nL\nN\nhello"; yield type("Chunk",(),{"text":"ok"})()
     graph=g([n("s","start"),n("l","llm",{"global_prompt":"G","local_prompt":"L","node_prompt":"N"}),n("o","output")],[GraphEdge(id="1",source="s",target="l"),GraphEdge(id="2",source="l",target="o")])
     result=await GraphRunner(graph,services=ExecutionServices(provider=Provider())).run(query="hello")
     assert result.status is RunState.SUCCEEDED

@@ -37,6 +37,6 @@ class LanceInspector:
         else:
             raw_names=getattr(schema,"names",[]); fields=raw_names() if callable(raw_names) else raw_names
         names=[field.get("name") if isinstance(field,dict) else str(field) for field in fields] if isinstance(fields,(list,tuple)) else list(fields)
-        text_column=next((name for name in names if name in {"text","content","document"}),None)
-        vector_column=next((name for name in names if name in {"vector","embedding"}),None)
+        text_column=next((name for name in names if isinstance(name,str) and name.casefold() in {"text","content","document"}),None)
+        vector_column=next((name for name in names if isinstance(name,str) and name.casefold() in {"vector","embedding"}),None)
         return {"table":table_name,"columns":names,"text_column":text_column,"vector_column":vector_column}
