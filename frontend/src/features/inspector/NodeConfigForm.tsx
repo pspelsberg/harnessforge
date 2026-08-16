@@ -334,7 +334,42 @@ export function NodeConfigForm({node, onChange}: {node: ForgeNode; onChange: (co
             presets={RAG_PATH_PRESETS}
             placeholder="e.g. .lancedb or docs/"
           />
-          {input("table", String(draft.table || ""), v => set("table", v))}
+          <label style={{display: "flex", flexDirection: "column", gap: 4, marginBottom: 12}}>
+            <FieldHeader label="table" />
+            <input
+              list="rag-table-presets"
+              aria-label="table"
+              placeholder="z.B. docs oder knowledge"
+              value={String(draft.table || "")}
+              onChange={e => set("table", e.target.value)}
+            />
+            <datalist id="rag-table-presets">
+              {["docs", "knowledge", "code", "chunks", "articles"].map(t => (
+                <option key={t} value={t} />
+              ))}
+            </datalist>
+            <div style={{display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4}}>
+              <span style={{fontSize: "0.7rem", color: "#64748b", alignSelf: "center"}}>Vorschläge:</span>
+              {["docs", "knowledge", "code"].map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => set("table", t)}
+                  style={{
+                    background: draft.table === t ? "rgba(56, 189, 248, 0.25)" : "rgba(30, 41, 59, 0.6)",
+                    border: `1px solid ${draft.table === t ? "#38bdf8" : "#334155"}`,
+                    color: draft.table === t ? "#38bdf8" : "#94a3b8",
+                    borderRadius: 4,
+                    fontSize: "0.68rem",
+                    padding: "2px 6px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </label>
           <label style={{display: "flex", flexDirection: "column", gap: 4, marginBottom: 12}}>
             <FieldHeader label="top-k" />
             <input

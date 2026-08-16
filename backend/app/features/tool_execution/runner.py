@@ -1,6 +1,6 @@
 """Workspace-bounded Local Trust Mode subprocess runner."""
 from __future__ import annotations
-import asyncio, hashlib, json, os, signal, sys
+import asyncio, hashlib, json, os, shutil, signal, sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from app.core.config import CAPS
@@ -71,9 +71,10 @@ class ToolRunner:
         if path.suffix==".py": command=[sys.executable,str(path),*spec.args]
         elif path.suffix==".sh": command=["/bin/sh",str(path),*spec.args]
         else:
-            if not Path("/usr/bin/node").is_file():
+            node_path = shutil.which("node") or shutil.which("nodejs") or ("/usr/bin/node" if Path("/usr/bin/node").is_file() else None)
+            if not node_path:
                 raise ToolError("node runtime is unavailable")
-            command=["/usr/bin/node",str(path),*spec.args]
+            command=[node_path,str(path),*spec.args]
         process=await asyncio.create_subprocess_exec(*command,cwd=self.boundary.workspace,env=env,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True)
         async def read_capped(stream: asyncio.StreamReader) -> bytes:
             data = bytearray()

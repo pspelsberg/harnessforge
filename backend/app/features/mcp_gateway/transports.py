@@ -1,6 +1,6 @@
 """Bounded JSON-RPC transports for approved MCP manifests."""
 from __future__ import annotations
-import asyncio,json,os,signal,sys,uuid
+import asyncio,json,os,shutil,signal,sys,uuid
 from typing import Any
 import httpx
 from app.core.extension_contracts import EXTENSION_POLICY
@@ -10,7 +10,8 @@ class McpTransportError(RuntimeError): pass
 
 class StdioTransport:
     async def request(self,manifest: ServerManifest,method: str,params: dict[str,Any])->dict[str,Any]:
-        command=[sys.executable,manifest.command,*manifest.args] if (manifest.command or "").endswith(".py") else (["/bin/sh",manifest.command,*manifest.args] if (manifest.command or "").endswith(".sh") else ["/usr/bin/node",manifest.command,*manifest.args])
+        node_bin = shutil.which("node") or shutil.which("nodejs") or "/usr/bin/node"
+        command=[sys.executable,manifest.command,*manifest.args] if (manifest.command or "").endswith(".py") else (["/bin/sh",manifest.command,*manifest.args] if (manifest.command or "").endswith(".sh") else [node_bin,manifest.command,*manifest.args])
         env={"PATH":"/usr/bin:/bin","PYTHONUNBUFFERED":"1","HARNESSFORGE_MCP_LOCAL_TRUST":"1"}
         process=await asyncio.create_subprocess_exec(*command,cwd=manifest.workspace_path,env=env,stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True,limit=EXTENSION_POLICY.max_mcp_response_bytes)
         async def drain():
