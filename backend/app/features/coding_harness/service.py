@@ -2,13 +2,13 @@
 from __future__ import annotations
 from pathlib import Path
 from app.core.security.path_sanitizer import WorkspaceBoundary,UnsafePathError
-from app.features.human_gates.service import HumanGateError
+from app.core.extension_ports import HumanApprovalPort,ApprovalPortError
 from app.features.coding_harness.catalog import HarnessCatalog,HarnessCatalogError
 from app.features.coding_harness.contracts import AdvanceRequest,ArtifactReport,HarnessImport,HarnessTemplate,RunPlan
 from app.features.coding_harness.planner import HarnessPlanner,PlannerError
 class CodingHarnessError(RuntimeError):pass
 class CodingHarnessService:
- def __init__(self,workspace:str|Path,gate_service):
+ def __init__(self,workspace:str|Path,gate_service:HumanApprovalPort):
   try:self.boundary=WorkspaceBoundary(workspace)
   except UnsafePathError as exc:raise CodingHarnessError("invalid harness workspace") from exc
   self.catalog=HarnessCatalog();self.planner=HarnessPlanner();self.gates=gate_service
@@ -30,7 +30,7 @@ class CodingHarnessService:
    if request.gate is None:return self.planner.advance(request,gate_approved=False)
    step=self.catalog.get(plan.template_id).steps[plan.current_step];action=step.action;expected_action=f"harness.{action}";expected_class="git_commit" if action=="git_commit" else "git_push" if action=="git_push" else "tool_write"
    try:gate=await self.gates.consume(request.gate)
-   except HumanGateError as exc:raise CodingHarnessError("human approval required") from exc
+   except ApprovalPortError as exc:raise CodingHarnessError("human approval required") from exc
    if gate.gate_class!=expected_class or gate.preview.action!=expected_action or gate.preview.command!=f"plan:{plan.plan_id}:step:{plan.current_step}":raise CodingHarnessError("gate binding mismatch")
    gate_approved=True
   try:return self.planner.advance(request,gate_approved=gate_approved)

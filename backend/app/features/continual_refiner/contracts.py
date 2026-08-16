@@ -47,3 +47,7 @@ class ApplyRequest(ExtensionContract):
 class RollbackRequest(ExtensionContract):
  model_config=ConfigDict(strict=True,extra="forbid")
  suggestion_id:str=Field(min_length=1,max_length=128,pattern=_ID); session_id:str=Field(min_length=1,max_length=128,pattern=_ID); expected_hash:str=Field(pattern=_SHA)
+
+class RejectRequest(ExtensionContract):
+ model_config=ConfigDict(strict=True,extra="forbid")
+ suggestion_id:str=Field(min_length=1,max_length=128,pattern=_ID); session_id:str=Field(min_length=1,max_length=128,pattern=_ID)

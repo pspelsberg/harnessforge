@@ -7,8 +7,9 @@ from app.features.human_gates.binding import action_fingerprint,new_nonce,new_re
 from app.features.human_gates.contracts import GateCreateRequest,GateDecision,GateRecord,GateConsumeRequest
 from app.features.human_gates.policy import GatePolicyError,validate_create
 from app.features.human_gates.store import HumanGateStore,GateStoreError
+from app.core.extension_ports import ApprovalPortError
 
-class HumanGateError(RuntimeError): pass
+class HumanGateError(ApprovalPortError): pass
 
 class HumanGateService:
     def __init__(self,workspace: str|Path):

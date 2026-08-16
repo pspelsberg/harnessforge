@@ -6,7 +6,7 @@ import json
 from pydantic import ConfigDict, Field, field_validator
 from app.core.extension_contracts import ExtensionContract, EXTENSION_POLICY
 from app.core.json_values import validate_json_value
-from app.features.execution.state import AgentState, Reducer
+from app.features.execution.public import AgentState, Reducer
 
 _SHA=r"^[0-9a-f]{64}$"; _ID=r"^[A-Za-z0-9._-]{1,128}$"
 

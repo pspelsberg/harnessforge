@@ -47,3 +47,8 @@ async def test_approved_stdio_hash_is_rechecked_before_each_call(tmp_path):
     (tmp_path/"server.py").write_text("print('changed')")
     result=await gateway.call_tool(McpCallRequest(run_id="run-1",server_id="srv-1",tool_name="echo",approval_fingerprint=approved.approval_fingerprint))
     assert result.error_code=="mcp.unknown_server"
+
+
+@pytest.mark.asyncio
+async def test_mcp_human_gate_required_tool_fails_closed(tmp_path):
+    registry=McpRegistry(tmp_path); review=registry.register(make_manifest(tmp_path)); approved=registry.approve("srv-1"); gateway=McpGateway(registry); gateway.register_tools([ToolDescriptor(server_id="srv-1",name="echo",requires_human_gate=True,input_schema={})]); result=await gateway.call_tool(McpCallRequest(run_id="run-1",server_id="srv-1",tool_name="echo",approval_fingerprint=approved.approval_fingerprint)); assert result.error_code=="mcp.approval_required"

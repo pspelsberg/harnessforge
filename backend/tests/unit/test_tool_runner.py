@@ -77,3 +77,14 @@ def test_tool_hash_changes_when_file_timestamp_changes(tmp_path):
     script=tmp_path/"tool.py"; script.write_text("print('ok')"); runner=ToolRunner(tmp_path); spec=ToolSpec(path="tool.py",args=[])
     first=runner.config_hash(spec); now=time.time_ns()+10_000_000; os.utime(script,ns=(now,now))
     assert first != runner.config_hash(spec)
+
+
+@pytest.mark.asyncio
+async def test_human_gate_required_tool_cannot_bypass_gate(tmp_path):
+    from types import SimpleNamespace
+    (tmp_path/"tool.py").write_text("print('ok')")
+    runner=ToolRunner(tmp_path); spec=ToolSpec(path="tool.py",args=[],requires_human_gate=True); approved=runner.config_hash(spec)
+    with pytest.raises(ToolError): await runner.run(spec,approved_hash=approved)
+    class Port:
+        async def consume(self, request): return SimpleNamespace(gate_class="tool_write",preview=SimpleNamespace(action="tool.execute",command=f"tool:tool.py:{approved}"))
+    result=await runner.run(spec,approved_hash=approved,approval_request=object(),approval_port=Port()); assert result.returncode==0

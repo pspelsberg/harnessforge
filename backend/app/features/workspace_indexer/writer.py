@@ -1,6 +1,7 @@
 """Atomic versioned SQLite index writer and read-only retrieval."""
 from __future__ import annotations
 from contextlib import asynccontextmanager
+import asyncio
 import json,uuid
 from pathlib import Path
 import aiosqlite
@@ -9,12 +10,16 @@ from app.features.workspace_indexer.contracts import FileRecord,IndexResult
 class IndexWriterError(RuntimeError):pass
 class IndexWriter:
  def __init__(self,boundary:WorkspaceBoundary):
-  self.boundary=boundary;self.path=boundary.resolve(".harnessforge/workspace-index.db");self._ready=False
+  self.boundary=boundary;self.path=boundary.resolve(".harnessforge/workspace-index.db");self._ready=False;self._init_lock=asyncio.Lock()
  @asynccontextmanager
  async def connect(self):
   async with aiosqlite.connect(self.path) as db:yield db
  async def ensure(self):
   if self._ready:return
+  async with self._init_lock:
+   if self._ready:return
+   await self._initialize()
+ async def _initialize(self):
   self.path.parent.mkdir(parents=True,exist_ok=True)
   async with self.connect() as db:
    await db.execute("CREATE TABLE IF NOT EXISTS index_meta (id INTEGER PRIMARY KEY CHECK(id=1),version INTEGER NOT NULL DEFAULT 0,last_sync TEXT)");await db.execute("CREATE TABLE IF NOT EXISTS index_files (relative_path TEXT PRIMARY KEY,size INTEGER,mime TEXT,sha256 TEXT,mtime_ns INTEGER,symbols TEXT,snippet TEXT,parser_error TEXT)");await db.execute("INSERT OR IGNORE INTO index_meta(id,version) VALUES(1,0)");await db.commit()

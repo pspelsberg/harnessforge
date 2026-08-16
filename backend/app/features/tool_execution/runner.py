@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from app.core.config import CAPS
 from app.core.security.path_sanitizer import WorkspaceBoundary, UnsafePathError
+from app.core.extension_ports import HumanApprovalPort, ApprovalPortError
+from typing import Any
 class ToolError(RuntimeError): pass
 @dataclass(frozen=True)
 class ToolSpec:
@@ -13,6 +15,7 @@ class ToolSpec:
     timeout_seconds: float = 15.0
     allowed_write_dirs: list[str] = field(default_factory=list)
     env_allowlist: list[str] = field(default_factory=list)
+    requires_human_gate: bool = False
     def __post_init__(self):
         if not self.path or len(self.path)>4096 or any(not isinstance(x,str) or len(x)>1024 for x in self.args): raise ValueError("invalid tool spec")
         if not 0 < self.timeout_seconds <= CAPS.max_tool_timeout_seconds: raise ValueError("invalid tool timeout")
@@ -43,7 +46,7 @@ class ToolRunner:
             if not resolved.is_dir(): raise ToolError("write directory is not a directory")
             write_paths.append(str(resolved.relative_to(self.boundary.workspace)))
         stat=path.stat()
-        payload={"path":str(path.relative_to(self.boundary.workspace)),"content":hashlib.sha256(path.read_bytes()).hexdigest(),"mtime_ns":stat.st_mtime_ns,"args":spec.args,"env":sorted(spec.env_allowlist),"writes":sorted(write_paths),"timeout":spec.timeout_seconds}
+        payload={"path":str(path.relative_to(self.boundary.workspace)),"content":hashlib.sha256(path.read_bytes()).hexdigest(),"mtime_ns":stat.st_mtime_ns,"args":spec.args,"env":sorted(spec.env_allowlist),"writes":sorted(write_paths),"timeout":spec.timeout_seconds,"requires_human_gate":spec.requires_human_gate}
         return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     def validate_write_target(self, relative_target: str, allowed_write_dirs: list[str]) -> Path:
         try: target=self.boundary.resolve(relative_target,must_exist=False)
@@ -53,9 +56,15 @@ class ToolRunner:
             except UnsafePathError: continue
             if root==target or self.boundary._inside(target,root): return target
         raise ToolError("write target is not declared")
-    async def run(self,spec: ToolSpec, *, approved_hash: str) -> ToolResult:
+    async def run(self,spec: ToolSpec, *, approved_hash: str, approval_request: Any | None = None, approval_port: HumanApprovalPort | None = None) -> ToolResult:
         path=self._path(spec)
-        if approved_hash != self.config_hash(spec): raise ToolError("tool approval hash mismatch")
+        expected_hash=self.config_hash(spec)
+        if approved_hash != expected_hash: raise ToolError("tool approval hash mismatch")
+        if spec.requires_human_gate:
+            if approval_request is None or approval_port is None: raise ToolError("human gate required for tool action")
+            try: gate=await approval_port.consume(approval_request)
+            except ApprovalPortError as exc: raise ToolError("human gate rejected tool action") from exc
+            if getattr(gate,"gate_class",None)!="tool_write" or getattr(gate,"preview",None) is None or gate.preview.action!="tool.execute" or gate.preview.command!=f"tool:{spec.path}:{expected_hash}": raise ToolError("human gate binding mismatch")
         env={"PATH":"/usr/bin:/bin","PYTHONUNBUFFERED":"1","HARNESSFORGE_LOCAL_TRUST_MODE":"1","HARNESSFORGE_ALLOWED_WRITE_DIRS":os.pathsep.join(spec.allowed_write_dirs)}
         for name in spec.env_allowlist:
             if name in os.environ and name not in {"OPENAI_API_KEY","OPENROUTER_API_KEY","HARNESSFORGE_SESSION_TOKEN"}: env[name]=os.environ[name]

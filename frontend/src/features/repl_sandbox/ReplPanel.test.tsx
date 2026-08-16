@@ -13,7 +13,7 @@ describe("ReplPanel", () => {
   it("keeps Local Trust visible and renders output as text", async () => {
     render(<ReplPanel token="token" />);
     expect(screen.getByText(/Local Trust Mode/)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Ausführen" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "REPL aktivieren" })); fireEvent.click(screen.getByRole("button", { name: "Ausführen" }));
     await waitFor(() => expect(screen.getByText("succeeded")).toBeTruthy());
     expect(screen.queryByRole("script")).toBeNull();
     expect(screen.getByText("<script>alert(1)</script>")).toBeTruthy();

@@ -34,3 +34,11 @@ class CheckpointPort(Protocol):
 
 class CapabilityPort(Protocol):
     async def describe(self, provider: str) -> CapabilityDescriptor: ...
+
+
+class ApprovalPortError(RuntimeError):
+    """Stable cross-slice failure for an approval consume operation."""
+
+
+class HumanApprovalPort(Protocol):
+    async def consume(self, request: Any) -> Any: ...

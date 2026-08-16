@@ -4,3 +4,5 @@ export type GateBinding={request_id:string;nonce:string;action_fingerprint:strin
 export function listSuggestions(sessionId:string,token:string):Promise<{suggestions:Suggestion[]}>{return apiJson(`/api/refiner/suggestions?session_id=${encodeURIComponent(sessionId)}`,{token})}
 export function applySuggestion(suggestion:Suggestion,sessionId:string,gate:GateBinding,token:string):Promise<Suggestion>{return apiJson("/api/refiner/apply",{method:"POST",token,body:JSON.stringify({suggestion_id:suggestion.suggestion_id,session_id:sessionId,run_id:suggestion.run_id,...gate})})}
 export function rollbackSuggestion(suggestion:Suggestion,sessionId:string,expectedHash:string,token:string):Promise<Suggestion>{return apiJson("/api/refiner/rollback",{method:"POST",token,body:JSON.stringify({suggestion_id:suggestion.suggestion_id,session_id:sessionId,expected_hash:expectedHash})})}
+
+export function rejectSuggestion(suggestion:Suggestion,sessionId:string,token:string):Promise<Suggestion>{return apiJson("/api/refiner/reject",{method:"POST",token,body:JSON.stringify({suggestion_id:suggestion.suggestion_id,session_id:sessionId})})}

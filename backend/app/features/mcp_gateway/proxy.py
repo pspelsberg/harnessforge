@@ -1,6 +1,7 @@
 """Governed MCP tool proxy with untrusted result projection."""
 from __future__ import annotations
 import asyncio
+import hashlib, json
 from typing import Any
 from app.core.extension_contracts import EXTENSION_POLICY
 from app.core.security.redaction import redact_payload
@@ -10,12 +11,13 @@ from app.features.mcp_gateway.transports import HttpTransport,McpTransportError,
 from app.features.mcp_gateway.contracts import ToolDescriptor
 from app.features.mcp_gateway.schema_filter import McpSchemaError,validate_arguments
 from app.features.mcp_gateway.approval import verify_manifest
+from app.core.extension_ports import HumanApprovalPort, ApprovalPortError
 
 class McpProxyError(RuntimeError): pass
 
 class McpGateway:
-    def __init__(self,registry: McpRegistry):
-        self.registry=registry; self._counts:dict[tuple[str,str],int]={}; self._tools:dict[tuple[str,str],ToolDescriptor]={}
+    def __init__(self,registry: McpRegistry, approval_port: HumanApprovalPort|None=None):
+        self.registry=registry; self.approval_port=approval_port; self._counts:dict[tuple[str,str],int]={}; self._tools:dict[tuple[str,str],ToolDescriptor]={}
 
     def register_tools(self, tools: list[ToolDescriptor]) -> None:
         if len(tools)>64: raise McpProxyError("too many MCP tools")
@@ -33,6 +35,13 @@ class McpGateway:
             return McpCallResult(run_id=request.run_id,server_id=request.server_id,tool_name=request.tool_name,status="failed",error_code="mcp.tool_not_allowed")
         try: validate_arguments(tool,request.arguments)
         except McpSchemaError: return McpCallResult(run_id=request.run_id,server_id=request.server_id,tool_name=request.tool_name,status="failed",error_code="mcp.invalid_arguments")
+        if tool.requires_human_gate:
+            if request.human_gate is None or self.approval_port is None: return McpCallResult(run_id=request.run_id,server_id=request.server_id,tool_name=request.tool_name,status="failed",error_code="mcp.approval_required")
+            try: gate=await self.approval_port.consume(request.human_gate)
+            except ApprovalPortError: return McpCallResult(run_id=request.run_id,server_id=request.server_id,tool_name=request.tool_name,status="failed",error_code="mcp.approval_required")
+            arguments_hash=hashlib.sha256(json.dumps(request.arguments,ensure_ascii=False,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+            expected=f"mcp:{request.server_id}:{request.tool_name}:{request.approval_fingerprint or ''}:{arguments_hash}"
+            if gate.gate_class!="mcp_call" or gate.preview.action!="mcp.call" or gate.preview.command!=expected: return McpCallResult(run_id=request.run_id,server_id=request.server_id,tool_name=request.tool_name,status="failed",error_code="mcp.approval_required")
         key=(request.run_id,request.server_id)
         if key not in self._counts and len(self._counts) >= EXTENSION_POLICY.max_mcp_calls_per_run * 128:
             return McpCallResult(run_id=request.run_id,server_id=request.server_id,tool_name=request.tool_name,status="limited",error_code="mcp.rate_limit")

@@ -24,3 +24,5 @@ Alle folgenden Routen sind am Composition Root authentifiziert und verwenden `co
 - Refiner: Analyse liefert nur redigierte Vorschläge; Apply benötigt eine exakt gebundene Gate-Consume-Anfrage; Rollback ist hash- und CAS-geschützt.
 - Indexer: Rebuild ist versioniert/atomar, Retrieval ist read-only und als `untrusted_workspace_context` markiert.
 - Coding-Harness: Templates sind hashvalidiert; Plans führen keine Shell-Kommandos aus, Push ist opt-in und immer Gate-pflichtig.
+- RLM/REPL: Beide APIs/UI-Flows bleiben standardmäßig deaktiviert; RLM nutzt ohne injizierten Provider einen fail-closed Disabled-Port, der Local-Trust-REPL bleibt explizit gekennzeichnet.
+- Tool-/MCP-/RLM-Aktionen können über öffentliche Approval-Ports als Human-Gate-pflichtig deklariert werden; Parameterbindungen enthalten die konkrete Konfiguration bzw. Argumente.

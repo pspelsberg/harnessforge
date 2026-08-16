@@ -6,6 +6,7 @@ from typing import Any, Literal
 from pydantic import ConfigDict, Field, field_validator, model_validator
 from app.core.extension_contracts import ContextEnvelope, ExtensionContract, EXTENSION_POLICY
 from app.core.json_values import validate_json_value
+from app.features.human_gates.contracts import GateConsumeRequest
 
 class ChildAgentStatus(StrEnum):
     SUCCEEDED="succeeded"; FAILED="failed"; LIMITED="limited"; CANCELLED="cancelled"
@@ -22,6 +23,8 @@ class ChildAgentSpec(ExtensionContract):
     external_provider: bool=False
     external_dataflow_approved: bool=False
     external_approval_fingerprint: str|None=Field(default=None,pattern=r"^[0-9a-f]{64}$")
+    requires_human_gate: bool=False
+    human_gate: GateConsumeRequest|None=None
 
     @field_validator("prompt")
     @classmethod

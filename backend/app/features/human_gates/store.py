@@ -1,6 +1,7 @@
 """SQLite persistence with transactional, single-use gate transitions."""
 from __future__ import annotations
 from contextlib import asynccontextmanager
+import asyncio
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -17,6 +18,7 @@ class HumanGateStore:
             self.path=self.boundary.resolve(".harnessforge/human-gates.db")
         except UnsafePathError as exc: raise GateStoreError("invalid gate workspace") from exc
         self._ready=False
+        self._init_lock=asyncio.Lock()
     @asynccontextmanager
     async def _connect(self):
         async with aiosqlite.connect(self.path) as db:
@@ -30,7 +32,9 @@ class HumanGateStore:
             await db.commit()
         self._ready=True
     async def _ensure(self):
-        if not self._ready: await self.initialize()
+        if self._ready: return
+        async with self._init_lock:
+            if not self._ready: await self.initialize()
     @staticmethod
     def _parse(payload: str, status: str)->GateRecord:
         data=json.loads(payload); data["status"]=status

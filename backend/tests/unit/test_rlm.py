@@ -68,7 +68,25 @@ def test_rlm_api_accepts_only_bounded_contracts():
     from fastapi.testclient import TestClient
     from app.features.rlm.api import router_for
     app=FastAPI(); app.include_router(router_for(RlmSpawner(FakePort())))
-    payload={"run_id":"run-1","allowed_bindings":["query"],"specs":[spec().model_dump(mode="json")]}
+    payload={"run_id":"run-1","allowed_bindings":["query"],"enabled":True,"specs":[spec().model_dump(mode="json")]}
     with TestClient(app) as client:
         response=client.post("/api/rlm/run",json=payload)
     assert response.status_code==200 and response.json()["status"]=="succeeded"
+
+
+def test_rlm_api_is_default_denied_until_enabled():
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from app.features.rlm.api import router_for
+    from app.features.rlm.spawner import DisabledSubAgentPort
+    app=FastAPI(); app.include_router(router_for(RlmSpawner(DisabledSubAgentPort())))
+    with TestClient(app) as client:
+        response=client.post("/api/rlm/run",json={"run_id":"run-1","specs":[spec().model_dump(mode="json")]})
+    assert response.status_code==200 and response.json()["error_code"]=="rlm.disabled"
+
+
+@pytest.mark.asyncio
+async def test_rllm_gate_required_spec_fails_closed_without_approval_port():
+    gated=spec().model_copy(update={"requires_human_gate":True})
+    result=await RlmSpawner(FakePort()).spawn("run-1",[gated],allowed_bindings={"query"})
+    assert result.status=="failed" and result.children[0].error_code=="rlm.approval_required"

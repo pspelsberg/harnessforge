@@ -6,6 +6,7 @@ import re
 from pydantic import ConfigDict, Field, field_validator, model_validator
 from app.core.extension_contracts import ExtensionContract, EXTENSION_POLICY
 from app.core.json_values import validate_json_value
+from app.features.human_gates.contracts import GateConsumeRequest
 
 _TRANSPORT=Literal["stdio","http","sse"]
 _ID=r"^[A-Za-z0-9._-]{1,128}$"
@@ -57,6 +58,7 @@ class ToolDescriptor(ExtensionContract):
     name: str=Field(min_length=1,max_length=128,pattern=r"^[A-Za-z0-9_.-]+$")
     description: str=Field(default="",max_length=4096)
     input_schema: dict[str,Any]=Field(default_factory=dict)
+    requires_human_gate: bool=False
 
     @field_validator("input_schema")
     @classmethod
@@ -77,6 +79,7 @@ class McpCallRequest(ExtensionContract):
     tool_name: str=Field(min_length=1,max_length=128,pattern=r"^[A-Za-z0-9_.-]+$")
     arguments: dict[str,Any]=Field(default_factory=dict)
     approval_fingerprint: str|None=Field(default=None,pattern=_SHA)
+    human_gate: GateConsumeRequest|None=None
 
     @field_validator("arguments")
     @classmethod

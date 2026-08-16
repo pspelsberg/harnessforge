@@ -11,11 +11,14 @@ class RlmRunRequest(ExtensionContract):
     run_id: str=Field(min_length=1,max_length=128,pattern=r"^[A-Za-z0-9._-]+$")
     specs: list[ChildAgentSpec]=Field(min_length=1,max_length=8)
     allowed_bindings: list[str]=Field(default_factory=list,max_length=32)
+    enabled: bool=False
 
 def router_for(spawner: RlmSpawner)->APIRouter:
     router=APIRouter()
     @router.post("/api/rlm/run")
     async def run(request: RlmRunRequest)->dict:
+        if not request.enabled:
+            return AggregateResult(run_id=request.run_id,status="limited",error_code="rlm.disabled").model_dump(mode="json")
         result=await spawner.spawn(request.run_id,request.specs,allowed_bindings=set(request.allowed_bindings))
         return result.model_dump(mode="json")
     return router

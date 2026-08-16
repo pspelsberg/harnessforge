@@ -1,6 +1,7 @@
 """Persistent suggestion inbox with compare-and-set status transitions."""
 from __future__ import annotations
 from contextlib import asynccontextmanager
+import asyncio
 import json
 from pathlib import Path
 import aiosqlite
@@ -11,12 +12,16 @@ class ReviewStore:
  def __init__(self,workspace: str|Path):
   try: self.boundary=WorkspaceBoundary(workspace); self.path=self.boundary.resolve(".harnessforge/refiner-reviews.db")
   except UnsafePathError as exc: raise ReviewStoreError("invalid refiner workspace") from exc
-  self._ready=False
+  self._ready=False; self._init_lock=asyncio.Lock()
  @asynccontextmanager
  async def _connect(self):
   async with aiosqlite.connect(self.path) as db: yield db
  async def _ensure(self):
   if self._ready:return
+  async with self._init_lock:
+   if self._ready:return
+   await self._initialize()
+ async def _initialize(self):
   self.path.parent.mkdir(parents=True,exist_ok=True)
   async with self._connect() as db:
    await db.execute("CREATE TABLE IF NOT EXISTS suggestions (suggestion_id TEXT PRIMARY KEY,run_id TEXT NOT NULL,session_id TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,backup_path TEXT)"); await db.commit()

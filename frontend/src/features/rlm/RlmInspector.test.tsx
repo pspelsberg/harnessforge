@@ -8,7 +8,7 @@ describe("RlmInspector", () => {
   it("shows depth/context governance and renders child output as text", async () => {
     render(<RlmInspector token="token" spec={{ run_id: "run-1", parent_run_id: "run-1", provider: "local", prompt: "x", context: { contract_version: "1", source: "untrusted", origin: "rag", bindings: ["query"], content: {} }, depth: 1, max_tokens: 100 }} />);
     expect(screen.getByText(/Context Firewall/)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Sub-Agenten starten" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "RLM aktivieren" })); fireEvent.click(screen.getByRole("button", { name: "Sub-Agenten starten" }));
     await waitFor(() => expect(screen.getAllByText("succeeded").length).toBeGreaterThan(0));
     expect(screen.getByText("<untrusted> reference")).toBeTruthy();
   });

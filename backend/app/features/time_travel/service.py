@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from app.core.security.path_sanitizer import WorkspaceBoundary,UnsafePathError
 from app.core.security.redaction import redact_payload
-from app.features.execution.state import AgentState
+from app.features.execution.public import AgentState
 from app.features.time_travel.contracts import CreateCheckpointRequest,CheckpointView,ForkRequest,ForkResult
 from app.features.time_travel.forker import ForkError,StateForker
 from app.features.time_travel.lineage import state_hash

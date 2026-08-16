@@ -488,7 +488,7 @@ features/coding_harness/
 | P2.5 Time Travel | 3 Tests | 310/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
 | P2.6 Continual Refiner | 2 Tests | 312/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
 | P2.7 Workspace Indexer | 1 Test | 315/318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
-| P2.8 Coding Harness | 1 Test | 318 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
-| P2.9 Release/E2E | 68 Tests | 318 Tests + E2E | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.8 Coding Harness | 2 Tests | 324 grün | durchgeführt | behoben | befundfrei | abgeschlossen |
+| P2.9 Release/E2E | 69 Tests | 325 Tests + E2E | durchgeführt | behoben | befundfrei | abgeschlossen |
 
 **Wichtig:** Alle Checkboxen in diesem Dokument beschreiben geplante Arbeit. Dieses Dokument nimmt keine Implementierung vor.

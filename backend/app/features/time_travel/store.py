@@ -1,6 +1,7 @@
 """SQLite persistence for immutable checkpoint and fork records."""
 from __future__ import annotations
 from contextlib import asynccontextmanager
+import asyncio
 import json
 from pathlib import Path
 import aiosqlite
@@ -13,6 +14,7 @@ class TimeTravelStore:
         try: self.boundary=WorkspaceBoundary(workspace); self.path=self.boundary.resolve(".harnessforge/time-travel.db")
         except UnsafePathError as exc: raise TimeTravelStoreError("invalid time-travel workspace") from exc
         self._ready=False
+        self._init_lock=asyncio.Lock()
     @asynccontextmanager
     async def _connect(self):
         async with aiosqlite.connect(self.path) as db:
@@ -26,7 +28,9 @@ class TimeTravelStore:
             await db.commit()
         self._ready=True
     async def _ensure(self):
-        if not self._ready: await self.initialize()
+        if self._ready: return
+        async with self._init_lock:
+            if not self._ready: await self.initialize()
     async def save_checkpoint(self,checkpoint: CheckpointView)->CheckpointView:
         await self._ensure()
         try:
