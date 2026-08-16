@@ -1,6 +1,7 @@
 """Strict human-gate contracts and redacted action previews."""
 from __future__ import annotations
 from typing import Any, Literal
+from pathlib import Path
 import json
 from pydantic import ConfigDict, Field, field_validator, model_validator
 from app.core.extension_contracts import ExtensionContract, EXTENSION_POLICY
@@ -15,7 +16,7 @@ _SHA=r"^[0-9a-f]{64}$"
 def _workspace_value(value: str)->str:
     if "\x00" in value or any(ord(char)<32 for char in value) or "\\" in value or not value.startswith("/") or value.startswith("//"):
         raise ValueError("workspace path must be absolute and control-free")
-    if any(part in {".",".."} for part in value.split("/")): raise ValueError("workspace path contains traversal")
+    if any(part in {".",".."} for part in value.split("/") ) or str(Path(value)) != value: raise ValueError("workspace path contains traversal or is not canonical")
     return value
 
 class ActionPreview(ExtensionContract):
