@@ -1,0 +1,6 @@
+import { apiJson } from "../../shared/api";
+export type Suggestion={contract_version:"1";suggestion_id:string;run_id:string;session_id:string;finding:{title:string;evidence:string[];risk:string};patch:{path:string;diff:string;old_text:string;new_text:string};status:"pending"|"applied"|"rejected"|"rolled_back"|"expired";expires_at:string};
+export type GateBinding={request_id:string;nonce:string;action_fingerprint:string};
+export function listSuggestions(sessionId:string,token:string):Promise<{suggestions:Suggestion[]}>{return apiJson(`/api/refiner/suggestions?session_id=${encodeURIComponent(sessionId)}`,{token})}
+export function applySuggestion(suggestion:Suggestion,sessionId:string,gate:GateBinding,token:string):Promise<Suggestion>{return apiJson("/api/refiner/apply",{method:"POST",token,body:JSON.stringify({suggestion_id:suggestion.suggestion_id,session_id:sessionId,run_id:suggestion.run_id,...gate})})}
+export function rollbackSuggestion(suggestion:Suggestion,sessionId:string,expectedHash:string,token:string):Promise<Suggestion>{return apiJson("/api/refiner/rollback",{method:"POST",token,body:JSON.stringify({suggestion_id:suggestion.suggestion_id,session_id:sessionId,expected_hash:expectedHash})})}

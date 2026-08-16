@@ -40,6 +40,8 @@ from app.features.human_gates.api import router_for as gates_router_for
 from app.features.human_gates.service import HumanGateService
 from app.features.time_travel.api import router_for as time_travel_router_for
 from app.features.time_travel.service import TimeTravelService
+from app.features.continual_refiner.api import router_for as refiner_router_for
+from app.features.continual_refiner.service import RefinerService
 
 _ALLOWED_HOSTS={"127.0.0.1","localhost"}
 _ALLOWED_ORIGINS={"http://127.0.0.1:5173","http://localhost:5173"}
@@ -51,6 +53,7 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     mcp_gateway=McpGateway(mcp_registry)
     gate_service=HumanGateService(workspace or Path.cwd())
     time_travel_service=TimeTravelService(workspace or Path.cwd())
+    refiner_service=RefinerService(workspace or Path.cwd(), gate_service)
     @asynccontextmanager
     async def lifespan(_app):
         try: yield
@@ -272,10 +275,12 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
     app.state.mcp_gateway=mcp_gateway
     app.state.gate_service=gate_service
     app.state.time_travel_service=time_travel_service
+    app.state.refiner_service=refiner_service
     app.include_router(repl_router_for(repl_manager), dependencies=[Depends(auth)])
     app.include_router(mcp_router_for(mcp_registry,mcp_gateway), dependencies=[Depends(auth)])
     app.include_router(gates_router_for(gate_service), dependencies=[Depends(auth)])
     app.include_router(time_travel_router_for(time_travel_service), dependencies=[Depends(auth)])
+    app.include_router(refiner_router_for(refiner_service), dependencies=[Depends(auth)])
     @app.post("/api/run")
     async def run_graph(request:RunRequest, _: None = Depends(auth)):
         try:

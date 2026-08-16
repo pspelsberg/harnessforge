@@ -369,9 +369,9 @@ features/continual_refiner/
 
 ## Security-/Test-Tasks
 
-- [ ] Trajectory prompt injection, secret leakage, arbitrary patch path, patch bomb und rollback race testen.
-- [ ] Vitest: Diff viewer, approval requirement, rollback and redaction.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] Trajectory prompt injection, secret leakage, arbitrary patch path, patch bomb und rollback race testen.
+- [x] Vitest: Diff viewer, approval requirement, rollback and redaction.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 
