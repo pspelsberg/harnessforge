@@ -174,3 +174,26 @@ async def test_sse_usage_chunk_is_normalized(monkeypatch):
     async def handler(request): return httpx.Response(200,headers={"content-type":"text/event-stream"},content=body)
     chunks=[x async for x in OpenAICompatibleAdapter(cfg,transport=httpx.MockTransport(handler)).stream(ProviderRequest(messages=[{"role":"user","content":"x"}]),approval=approval,bindings=["query"])]
     assert chunks[0].text=="a"
+
+
+def test_public_provider_contract_exposes_concrete_bounded_request_and_chunk():
+    from app.features.providers.base import CompletionRequest, CompletionChunk, BaseProviderAdapter
+    request=CompletionRequest(messages=[{"role":"user","content":"hello"}],temperature=0.2,max_tokens=10)
+    chunk=CompletionChunk(text="ok",prompt_tokens=1,completion_tokens=1,cost=0.01)
+    assert request.messages[0]["content"]=="hello" and chunk.cost==0.01
+    assert "complete" in BaseProviderAdapter.__abstractmethods__
+
+
+def test_completion_chunk_rejects_non_finite_or_negative_usage():
+    from app.features.providers.base import CompletionChunk
+    with pytest.raises(ValueError): CompletionChunk(text="ok", prompt_tokens=-1)
+    with pytest.raises(ValueError): CompletionChunk(text="ok", cost=float("nan"))
+
+
+@pytest.mark.asyncio
+async def test_provider_nan_cost_is_normalized_to_provider_error(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY","x")
+    cfg=ProviderConfig(kind=ProviderKind.OPENAI,base_url="https://api.openai.com/v1",model="x",timeout_seconds=2); approval=DataflowApproval.issue(cfg,["messages"])
+    async def handler(request): return httpx.Response(200,content=b'{"choices":[{"message":{"content":"ok"}}],"cost":NaN}')
+    with pytest.raises(ProviderError,match="usage"):
+        [x async for x in OpenAICompatibleAdapter(cfg,transport=httpx.MockTransport(handler)).stream(ProviderRequest(messages=[{"role":"user","content":"x"}]),approval=approval,bindings=["messages"])]

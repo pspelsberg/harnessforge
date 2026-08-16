@@ -5,41 +5,15 @@ import json
 import hashlib
 from dataclasses import dataclass
 from typing import AsyncIterator, Any
-from math import isfinite
 import httpx
 from app.core.config import CAPS
 from app.features.providers.contracts import ProviderConfig, ProviderKind
-from app.features.providers.base import BaseProviderAdapter
+from app.features.providers.base import BaseProviderAdapter, CompletionRequest, CompletionChunk
+
+# Backwards-compatible feature-slice name; the public contract lives in base.py.
+ProviderRequest = CompletionRequest
 
 class ProviderError(RuntimeError): pass
-@dataclass(frozen=True)
-class ProviderRequest:
-    messages: list[dict[str, Any]]
-    temperature: float | None = None
-    max_tokens: int | None = None
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.messages, list) or not self.messages:
-            raise ValueError("messages must be a non-empty list")
-        if self.temperature is not None and (not isinstance(self.temperature, (int, float)) or isinstance(self.temperature, bool) or not 0 <= self.temperature <= 2):
-            raise ValueError("temperature must be between 0 and 2")
-        if self.max_tokens is not None and (not isinstance(self.max_tokens, int) or isinstance(self.max_tokens, bool) or not 1 <= self.max_tokens <= 8192):
-            raise ValueError("max_tokens must be between 1 and 8192")
-        for message in self.messages:
-            if not isinstance(message, dict) or set(message) - {"role", "content", "source"} or not isinstance(message.get("role"), str) or message.get("role") not in {"system", "user", "assistant"} or not isinstance(message.get("content"), str):
-                raise ValueError("messages must contain only supported roles and string content")
-            if message.get("source", "trusted") not in {"trusted", "untrusted_context"}:
-                raise ValueError("invalid message source")
-            if message.get("source") == "untrusted_context" and message["role"] == "system":
-                raise ValueError("untrusted context cannot be a system message")
-@dataclass(frozen=True)
-class CompletionChunk:
-    text: str
-    finish_reason: str | None = None
-    prompt_tokens: int | None = None
-    completion_tokens: int | None = None
-    cost: float | None = None
-
 @dataclass(frozen=True)
 class DataflowApproval:
     fingerprint: str
@@ -131,4 +105,7 @@ class OpenAICompatibleAdapter(BaseProviderAdapter):
         usage=data.get("usage", {}) if isinstance(data, dict) and isinstance(data.get("usage",{}),dict) else {}
         prompt_tokens=usage.get("prompt_tokens") if isinstance(usage.get("prompt_tokens"),int) and 0<=usage.get("prompt_tokens")<=100000000 else None
         completion_tokens=usage.get("completion_tokens") if isinstance(usage.get("completion_tokens"),int) and 0<=usage.get("completion_tokens")<=100000000 else None
-        yield CompletionChunk(text=text,finish_reason=finish_reason,prompt_tokens=prompt_tokens,completion_tokens=completion_tokens,cost=data.get("cost") if isinstance(data.get("cost"),(int,float)) else None)
+        try:
+            yield CompletionChunk(text=text,finish_reason=finish_reason,prompt_tokens=prompt_tokens,completion_tokens=completion_tokens,cost=data.get("cost") if isinstance(data.get("cost"),(int,float)) else None)
+        except ValueError as exc:
+            raise ProviderError("provider usage was invalid") from exc
