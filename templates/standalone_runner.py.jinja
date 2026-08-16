@@ -30,6 +30,23 @@ def validate_startup(workspace):
         if node.get("type")=="loop":
             cfg=node.get("data",{}).get("config",{}); outgoing=[edge for edge in GRAPH["edges"] if edge.get("source")==node.get("id")]
             if not isinstance(cfg.get("max_iterations"),int) or not 1<=cfg["max_iterations"]<=CAPS["max_loop_iterations"] or not isinstance(cfg.get("fallback"),str) or not any(edge.get("source_handle")=="fallback" and edge.get("target")==cfg["fallback"] for edge in outgoing) or {"true","false","fallback"} - {edge.get("source_handle") for edge in outgoing}: raise ValueError("invalid loop")
+async def _read_capped(stream):
+    data=bytearray()
+    while True:
+        chunk=await stream.read(8192)
+        if not chunk: return bytes(data)
+        data.extend(chunk)
+        if len(data)>CAPS["max_output_bytes"]: raise LimitExceeded("tool output exceeded limit")
+
+async def _stop_process(process):
+    try: os.killpg(process.pid,signal.SIGTERM)
+    except ProcessLookupError: return
+    try: await asyncio.wait_for(process.wait(),timeout=1)
+    except asyncio.TimeoutError:
+        try: os.killpg(process.pid,signal.SIGKILL)
+        except ProcessLookupError: pass
+        await process.wait()
+
 async def run(prompt,workspace):
     started=time.monotonic()
     state={"messages":[],"query":prompt,"retrieved_context":[],"tool_results":[],"last_output":None,"iteration":0,"metadata":{},"custom_state":{}}
@@ -52,7 +69,7 @@ async def run(prompt,workspace):
                 import lancedb
                 db_path=os.path.realpath(os.path.join(workspace,cfg["path"])); workspace_path=os.path.realpath(workspace)
                 if not db_path.startswith(workspace_path+os.sep): raise RuntimeError("rag path outside workspace")
-                table=lancedb.connect(db_path).open_table(cfg["table"]); rows=table.search(cfg["vector"]).limit(min(int(cfg.get("top_k",5)),20)).to_list(); state["retrieved_context"]=[dict(text=str(row.get("text","")),score=float(row.get("_distance",0)),metadata=dict((k,v) for k,v in row.items() if k not in ("text","vector","_distance"))) for row in rows]
+                table=lancedb.connect(db_path).open_table(cfg["table"]); rows=table.search(cfg["vector"]).select(["text"]).limit(min(int(cfg.get("top_k",5)),20)).to_list(); state["retrieved_context"]=[dict(text=str(row.get("text",""))[:8192],score=float(row.get("_distance",0))) for row in rows]
             except Exception as exc: raise RuntimeError("rag query failed") from exc
         elif node["type"] == "llm":
             cfg=node["data"]["config"]; provider=cfg.get("provider")
@@ -112,12 +129,17 @@ async def run(prompt,workspace):
             elif suffix==".js": command=["/usr/bin/node",tool_path]
             else: raise RuntimeError("unsupported tool")
             process=await asyncio.create_subprocess_exec(*command,*[str(arg) for arg in cfg.get("args",[])],cwd=workspace,env={"PATH":"/usr/bin:/bin","PYTHONUNBUFFERED":"1"},stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True)
-            try: stdout,stderr=await asyncio.wait_for(process.communicate(),timeout=min(float(cfg.get("timeout_seconds",15)),60))
-            except asyncio.TimeoutError:
-                try: os.killpg(process.pid,signal.SIGTERM)
-                except ProcessLookupError: pass
-                await process.wait(); raise LimitExceeded("tool timeout")
-            if len(stdout)>CAPS["max_output_bytes"] or len(stderr)>CAPS["max_output_bytes"]: raise LimitExceeded("tool output exceeded limit")
+            stdout_task=asyncio.create_task(_read_capped(process.stdout))
+            stderr_task=asyncio.create_task(_read_capped(process.stderr))
+            try:
+                stdout,stderr=await asyncio.wait_for(asyncio.gather(stdout_task,stderr_task),timeout=min(float(cfg.get("timeout_seconds",15)),60))
+            except (asyncio.TimeoutError,LimitExceeded) as exc:
+                await _stop_process(process)
+                for task in (stdout_task,stderr_task):
+                    if not task.done(): task.cancel()
+                await asyncio.gather(stdout_task,stderr_task,return_exceptions=True)
+                if isinstance(exc,asyncio.TimeoutError): raise LimitExceeded("tool timeout")
+                raise
             state["last_output"]=stdout.decode("utf-8","replace")
             state["tool_results"].append({"stdout":state["last_output"],"stderr":stderr.decode("utf-8","replace"),"returncode":process.returncode})
             if process.returncode!=0: raise RuntimeError("tool failed")

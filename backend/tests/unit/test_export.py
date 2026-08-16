@@ -246,3 +246,9 @@ def test_export_runner_hides_startup_validation_tracebacks(tmp_path):
     runner.write_text(source)
     result=subprocess.run([sys.executable,str(runner),"--prompt","x","--dry-run"],capture_output=True,text=True)
     assert result.returncode==1 and result.stderr.strip()=="runner validation failed" and "Traceback" not in result.stderr
+
+
+def test_generated_runner_collects_tool_output_incrementally(tmp_path):
+    outdir=tmp_path/"bundle"; export_bundle(valid(tmp_path),outdir)
+    source=(outdir/"agent_runner.py").read_text()
+    assert "_read_capped" in source and "process.communicate()" not in source
