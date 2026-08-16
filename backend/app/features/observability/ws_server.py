@@ -5,7 +5,7 @@ import json
 from typing import Any
 from app.core.config import CAPS
 class WebSocketProtocolError(ValueError): pass
-_ALLOWED={"auth","ping","run.cancel","run.pause","run.resume"}
+_ALLOWED={"auth","ping","run.start","run.cancel","run.pause","run.resume"}
 @dataclass(frozen=True)
 class WebSocketCommand:
     type: str

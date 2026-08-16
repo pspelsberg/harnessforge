@@ -44,3 +44,12 @@ def test_websocket_pause_resume_commands(tmp_path):
     app=create_app(session_value="test-session",workspace=tmp_path); from app.features.execution.engine import GraphRunner; app.state.active_runner=GraphRunner.__new__(GraphRunner); app.state.active_runner._paused=False; app.state.active_runner.event_sink=lambda event:None; app.state.active_runner._resume_event=__import__("asyncio").Event(); app.state.active_runner._resume_event.set()
     with TestClient(app).websocket_connect("/ws",headers={"host":"127.0.0.1","origin":"http://127.0.0.1:5173","x-harnessforge-token":"test-session"}) as ws:
         ws.send_json({"type":"run.pause"}); assert ws.receive_json()=={"type":"run.paused"}; ws.send_json({"type":"run.resume"}); assert ws.receive_json()=={"type":"run.resumed"}
+
+
+def test_websocket_can_start_an_activated_graph(tmp_path):
+    app=create_app(session_value="test-session",workspace=tmp_path); client=TestClient(app)
+    graph={"schema_version":"1","id":"g","name":"g","workspace_path":".","nodes":[{"id":"s","type":"start","position":{"x":0,"y":0},"data":{"config":{},"ui":{}}},{"id":"o","type":"output","position":{"x":1,"y":1},"data":{"config":{},"ui":{}}}],"edges":[{"id":"e","source":"s","target":"o"}],"settings":{"review_only":False,"external_dataflow_activated":False}}
+    headers={"host":"127.0.0.1","origin":"http://127.0.0.1:5173","x-harnessforge-token":"test-session"}
+    with client.websocket_connect("/ws",headers=headers) as ws:
+        ws.send_json({"type":"run.start","payload":{"graph":graph,"query":"hello"}})
+        assert ws.receive_json()["type"]=="run.started"

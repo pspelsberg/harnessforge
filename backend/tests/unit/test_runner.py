@@ -10,7 +10,7 @@ async def test_runner_executes_reducer_and_emits_lifecycle():
     graph=g([n("s","start"),n("r","reducer",{"op":"SET","target":"last_output","value":"done"}),n("o","output")],[GraphEdge(id="1",source="s",target="r"),GraphEdge(id="2",source="r",target="o")])
     events=[]; result=await GraphRunner(graph,event_sink=events.append).run(query="hi")
     assert result.status is RunState.SUCCEEDED and result.state.last_output == "done"
-    assert [e["type"] for e in events] == ["run.created","run.validating","run.running","node.queued","node.running","node.succeeded","state.diff","node.queued","node.running","node.succeeded","state.diff","run.succeeded"]
+    assert [e["type"] for e in events] == ["run.created","run.validating","run.running","node.queued","node.running","node.succeeded","state.diff","node.queued","node.running","node.succeeded","state.diff","run.succeeded","run.completed"]
 
 @pytest.mark.asyncio
 async def test_loop_uses_declarative_condition_and_fallback():
@@ -74,7 +74,7 @@ async def test_runner_emits_cancelled_lifecycle_event():
 @pytest.mark.asyncio
 async def test_runner_emits_limit_event():
     graph=g([n("s","start"),n("r","reducer",{"op":"SET","target":"last_output","value":"x"}),n("o","output")],[GraphEdge(id="1",source="s",target="r"),GraphEdge(id="2",source="r",target="o")]); events=[]; import app.features.execution.engine as engine; old=engine.CAPS.max_run_seconds; object.__setattr__(engine.CAPS,"max_run_seconds",0.0)
-    try: result=await GraphRunner(graph,event_sink=events.append).run(); assert result.status is RunState.LIMIT_EXCEEDED and events[-1]["type"]=="run.limit_exceeded"
+    try: result=await GraphRunner(graph,event_sink=events.append).run(); assert result.status is RunState.LIMIT_EXCEEDED and events[-2:]==[{"type":"run.limit_exceeded"},{"type":"run.completed","status":"limit_exceeded"}]
     finally: object.__setattr__(engine.CAPS,"max_run_seconds",old)
 
 

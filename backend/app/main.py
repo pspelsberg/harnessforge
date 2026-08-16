@@ -83,6 +83,35 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
         app.state.auth_failures=0
     app.state.auth_failure_window=time.monotonic()
     app.state.event_broker=EventBroker()
+
+    async def _run_background(graph: ForgeGraph, query: str, run_id: str, services) -> None:
+        """Execute a WebSocket-started run and persist the same audit trail as HTTP runs."""
+        store=RunStore(Path(workspace or Path.cwd()) / ".harnessforge" / "runs.db")
+        await store.initialize(retention_days=graph.settings.retention_days)
+        await store.create_run(run_id)
+        collected=[]
+        def sink(event):
+            event={**event,"run_id":run_id}; collected.append(event); app.state.event_broker.publish(event)
+        runner=GraphRunner(graph,services=services,event_sink=sink); app.state.active_runner=runner
+        try:
+            result=await runner.run(query=query)
+        finally:
+            if getattr(app.state,"active_runner",None) is runner: app.state.active_runner=None
+            clients=[]
+            for candidate in [services.provider,*((services.providers or {}).values())]:
+                if candidate is not None and candidate not in clients: clients.append(candidate)
+            for candidate in clients:
+                try: await candidate.aclose()
+                except AttributeError: pass
+            status_events={"run.validating":"validating","run.running":"running","run.succeeded":"succeeded","run.failed":"failed","run.cancelled":"cancelled","run.limit_exceeded":"limit_exceeded"}
+            for lifecycle_event in collected:
+                next_status=status_events.get(lifecycle_event.get("type"))
+                if next_status: await store.update_run_status(run_id,next_status)
+            if not collected: await store.update_run_status(run_id,result.status.value)
+            from app.features.observability.events import Event
+            for event in collected:
+                await store.append_event(run_id,Event(type=event["type"],run_id=run_id,payload={k:v for k,v in event.items() if k not in {"type","run_id"}}))
+
     @app.websocket("/ws")
     async def websocket(ws: WebSocket):
         origin=ws.headers.get("origin")
@@ -114,6 +143,20 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
                 try: command=WebSocketCommand.parse(message)
                 except WebSocketProtocolError: await ws.close(code=1003); return
                 if command.type == "ping": await ws.send_json({"type":"pong"}); continue
+                if command.type == "run.start":
+                    if getattr(app.state,"active_task",None) is not None and not app.state.active_task.done():
+                        await ws.send_json({"type":"run.start.rejected","reason":"run already active"}); continue
+                    try:
+                        graph=ForgeGraph.model_validate(command.payload.get("graph"))
+                        query=command.payload.get("query","")
+                        if not isinstance(query,str) or len(query.encode("utf-8"))>128*1024 or "\x00" in query: raise ValueError("invalid query")
+                        if graph.settings.review_only or not validate_graph(graph).valid: raise ValueError("graph is not runnable")
+                        services=execution_services or build_services(graph,workspace or Path.cwd())
+                    except (ServiceBuildError,TypeError,ValueError):
+                        await ws.send_json({"type":"run.start.rejected","reason":"invalid run request"}); continue
+                    run_id=uuid.uuid4().hex
+                    app.state.active_task=asyncio.create_task(_run_background(graph,query,run_id,services))
+                    await ws.send_json({"type":"run.started","run_id":run_id}); continue
                 if command.type == "run.pause":
                     active=getattr(app.state,"active_runner",None)
                     if active is not None: active.pause()
