@@ -229,15 +229,9 @@ def create_app(*, session_value: str | None = None, workspace: str | Path | None
             for lifecycle_event in collected:
                 next_status=status_events.get(lifecycle_event.get("type"))
                 if next_status:
-                    try:
-                        await store.update_run_status(run_id, next_status)
-                    except Exception:
-                        pass
+                    await store.update_run_status(run_id, next_status)
             if not collected:
-                try:
-                    await store.update_run_status(run_id, result.status.value)
-                except Exception:
-                    pass
+                await store.update_run_status(run_id, result.status.value)
             for event in collected:
                 try: await store.append_event(run_id, __import__("app.features.observability.events",fromlist=["Event"]).Event(type=event["type"],run_id=run_id,payload={k:v for k,v in event.items() if k not in {"type","run_id"}}))
                 except Exception: pass

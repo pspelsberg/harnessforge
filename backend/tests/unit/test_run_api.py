@@ -62,3 +62,13 @@ def test_run_api_rejects_when_process_run_is_active(tmp_path):
 def test_run_response_has_bounded_state_and_no_secret_config(tmp_path):
     app=create_app(session_value="test-session",workspace=tmp_path); c=TestClient(app); h={"host":"127.0.0.1","x-harnessforge-token":"test-session"}; payload=graph_payload(); payload["settings"]["review_only"]=False
     r=c.post("/api/run",json={"graph":payload,"query":"hello"},headers=h); assert r.status_code==200 and "OPENAI_API_KEY" not in r.text
+
+
+def test_run_status_persistence_failure_is_not_silently_ignored(tmp_path, monkeypatch):
+    from app.features.observability.store import RunStore
+    async def fail_status(self, run_id, status):
+        raise ValueError("status store unavailable")
+    monkeypatch.setattr(RunStore, "update_run_status", fail_status)
+    app=create_app(session_value="test-session",workspace=tmp_path); c=TestClient(app, raise_server_exceptions=False); h={"host":"127.0.0.1","x-harnessforge-token":"test-session"}
+    payload=graph_payload(); payload["settings"]["review_only"]=False
+    assert c.post("/api/run",json={"graph":payload,"query":"hello"},headers=h).status_code == 500

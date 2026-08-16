@@ -36,8 +36,9 @@ class RunStore:
             # Keep local MVP databases created by older versions readable.
             try:
                 await db.execute("ALTER TABLE runs ADD COLUMN status TEXT NOT NULL DEFAULT 'created'")
-            except aiosqlite.OperationalError:
-                pass
+            except aiosqlite.OperationalError as exc:
+                if "duplicate column name" not in str(exc).casefold():
+                    raise
             await db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, type TEXT NOT NULL, payload TEXT NOT NULL, FOREIGN KEY(run_id) REFERENCES runs(id) ON DELETE CASCADE)")
             await db.execute("CREATE TABLE IF NOT EXISTS checkpoints (id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, step INTEGER NOT NULL, payload TEXT NOT NULL, FOREIGN KEY(run_id) REFERENCES runs(id) ON DELETE CASCADE)")
             await db.execute("CREATE INDEX IF NOT EXISTS idx_events_run_id ON events(run_id,id)")
