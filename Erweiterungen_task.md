@@ -123,17 +123,17 @@ Die Reihenfolge ist verbindlich: keine RLM-Implementierung vor einer verifiziert
 
 ## Tasks
 
-- [ ] Caps und harte Obergrenzen für alle Phase-2-Ressourcen definieren und dokumentieren.
-- [ ] DTOs mit strict Pydantic/TypeScript-Schemas und Schema-Versionierung entwerfen.
-- [ ] Event-Namespace, Fehlercodes, Cancellation- und Limit-Semantik festlegen.
-- [ ] Persistenz-/Retention-Regeln für neue Tabellen und Migrationen planen.
-- [ ] Architektur-Fitness-Regeln für neue Slices ergänzen.
-- [ ] Threat Model für private Daten + untrusted content + externe Kommunikation aktualisieren (Lethal-Trifecta).
+- [x] Caps und harte Obergrenzen für alle Phase-2-Ressourcen definieren und dokumentieren.
+- [x] DTOs mit strict Pydantic/TypeScript-Schemas und Schema-Versionierung entwerfen.
+- [x] Event-Namespace, Fehlercodes, Cancellation- und Limit-Semantik festlegen.
+- [x] Persistenz-/Retention-Regeln für neue Tabellen und Migrationen planen.
+- [x] Architektur-Fitness-Regeln für neue Slices ergänzen.
+- [x] Threat Model für private Daten + untrusted content + externe Kommunikation aktualisieren (Lethal-Trifecta).
 
 ## Gate
 
-- [ ] Contract-/Schema-Pytests und Frontend-Typ-/Vitest-Tests grün.
-- [ ] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
+- [x] Contract-/Schema-Pytests und Frontend-Typ-/Vitest-Tests grün.
+- [x] CodeUltra Review → Fix → erneutes CodeUltra Review ohne Findings.
 
 ---
 

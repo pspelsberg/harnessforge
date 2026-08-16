@@ -117,6 +117,17 @@ HarnessForge darf im MVP nicht:
 - MCP-Autodiscovery, RLM/REPL-Codeausführung, Sub-Graphs oder Time-Travel stillschweigend im MVP aktivieren;
 - bei Exportfehlern nicht unterstützte Nodes stillschweigend überspringen.
 
+## Phase-2-Sicherheitsinvarianten
+
+Phase-2-Erweiterungen verwenden versionierte Contracts mit einer zentralen `ExtensionPolicy`.
+Rekursion, Fan-out, REPL-/MCP-Ressourcen, Forks, Approvals und Retention sind hart begrenzt;
+Erweiterungen dürfen diese Caps nicht selbst erhöhen. `ContextEnvelope` trägt Herkunft und
+Bindings, und `untrusted`-Inhalte werden nie als Systemanweisung behandelt. Approval-Entscheidungen
+sind an Run, Node, Action-Fingerprint, Nonce und TTL gebunden. Checkpoints sind immutable; ein
+Fork erhält neue Approvals und mutiert den Parent-Run nicht. MCP-Discovery erzeugt zunächst nur
+einen Review-Katalog und darf keine Tools automatisch aktivieren. Refiner-Vorschläge bleiben Diffs
+bis zur expliziten Freigabe.
+
 ## Phase-2-Begriffe
 
 Human-Gate, Sub-Graph, MCP-Gateway, Progressive Disclosure, Guardrail-Node, Time-Travel und RLM/REPL-Isolation sind bewusst auf Phase 2 verschoben. Ihre späteren Implementierungen benötigen eigene Verträge, Context Firewalls, Auditierung und erneute Security-/Compliance-Entscheidungen.
