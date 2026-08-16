@@ -266,25 +266,25 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
 
 ## 🐍 Phase 7: Export Slice (Standalone Python Runner Bundle)
 
-- [ ] **7.1 Export-Validierungs-Pipeline (`export/validator.py`)**
-  - [ ] Strikte Prüfung vor Export: Blockiert Export bei unvollständigen Nodes, fehlenden Fallbacks oder ungültigen Pfaden
+- [x] **7.1 Export-Validierungs-Pipeline (`export/validator.py`)**
+  - [x] Strikte Prüfung vor Export: Blockiert Export bei unvollständigen Nodes, fehlenden Fallbacks oder ungültigen Pfaden
   - [x] Klare Fehlermeldungen statt stillem Ignorieren nicht unterstützter Nodes
 
-- [ ] **7.2 Standalone Python Code Generator (`export/generator.py`)**
-  - [ ] Jinja2-Template `templates/standalone_runner.py.jinja`
-  - [ ] Generiert eigenständiges `agent_runner.py` mit:
-    - [ ] Eingebetteter, validierter Graph-Topologie
-    - [ ] Autarker Async-State-Machine
-    - [ ] Provider-Aufrufen via `httpx`
-    - [ ] LanceDB-Abfrage via nativem `lancedb`
-    - [ ] Tool-Subprozess-Steuerung mit Timeout & Output-Cap
+- [x] **7.2 Standalone Python Code Generator (`export/generator.py`)**
+  - [x] Jinja2-Template `templates/standalone_runner.py.jinja`
+  - [x] Generiert eigenständiges `agent_runner.py` mit:
+    - [x] Eingebetteter, validierter Graph-Topologie
+    - [x] Autarker Async-State-Machine
+    - [x] Provider-Aufrufen via `httpx`
+    - [x] LanceDB-Abfrage via nativem `lancedb`
+    - [x] Tool-Subprozess-Steuerung mit Timeout & Output-Cap
     - [x] `argparse`-CLI Interface (`--prompt`, `--workspace`, `--dry-run`, `--json-logs`)
-    - [ ] Sauberem stdout-Streaming & Exit-Codes (0 bei Erfolg, 1 bei Abbruch, 2 bei Limit)
+    - [x] Sauberem stdout-Streaming & Exit-Codes (0 bei Erfolg, 1 bei Abbruch, 2 bei Limit)
   - [x] Absolutes Null-Lock-in: Null Abhängigkeiten zu FastAPI, React oder HarnessForge-Servern
 
 - [x] **7.3 Export Bundle Packaging**
-  - [ ] Erzeugt `requirements.txt` mit exakt gepinnten Dependencies (`httpx==...`, `lancedb==...`, `pydantic==...`)
-  - [ ] Erzeugt `.env.example` mit den benötigten Variablen (`OPENAI_API_KEY=`, `OPENROUTER_API_KEY=`)
+  - [x] Erzeugt `requirements.txt` mit exakt gepinnten Dependencies (`httpx==...`, `lancedb==...`, `pydantic==...`)
+  - [x] Erzeugt `.env.example` mit den benötigten Variablen (`OPENAI_API_KEY=`, `OPENROUTER_API_KEY=`)
   - [x] 1-Klick-Download im Browser als `.zip` oder Speichern im Workspace
 
 ---
@@ -307,14 +307,14 @@ Jeder Slice / Task gilt erst als abgeschlossen, wenn:
   - [x] `test_security_dos_limits.py`: Loop-Limit (50), Timeout (5 Min), State-Cap (5 MB), Tool-Timeout
   - [x] `test_security_untrusted_context.py`: RAG-Chunks und Tool-Outputs dürfen System-Prompts nicht überschreiben
 
-- [ ] **8.4 End-to-End Verification Run**
-  - [ ] Graph im Canvas erstellen: `Start -> LanceDB RAG -> LLM Call (agents.md) -> Loop (Max 3) -> State Reducer -> Tool -> Output`
-  - [ ] Live-Ausführung auf localhost beobachten (Glow-Effekte, Streaming, SQLite-Events)
-  - [ ] Standalone-Bundle exportieren und isoliert in einer frischen virtuellen Python-Umgebung ausführen:
+- [x] **8.4 End-to-End Verification Run**
+  - [x] Graph im Canvas erstellen: `Start -> LanceDB RAG -> LLM Call (agents.md) -> Loop (Max 3) -> State Reducer -> Tool -> Output`
+  - [x] Live-Ausführung auf localhost beobachten (Glow-Effekte, Streaming, SQLite-Events)
+  - [x] Standalone-Bundle exportieren und isoliert in einer frischen virtuellen Python-Umgebung ausführen:
     ```bash
     python agent_runner.py --prompt "Test-Task"
     ```
-  - [ ] Überprüfen, ob das generierte Skript ohne Fehler durchläuft und den erwarteten Output liefert
+  - [x] Überprüfen, ob das generierte Skript ohne Fehler durchläuft und den erwarteten Output liefert
 
 ---
 
