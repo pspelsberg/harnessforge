@@ -40,6 +40,7 @@ it("rejects oversized string config values",()=>{const config={x:"a".repeat(2000
 it("rejects secret-shaped runtime config and malformed node surfaces",()=>{
  expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"s",type:"start",position:{x:0,y:0},data:{config:{api_key:"secret"},ui:{}}}],edges:[]}))).toThrow();
  expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"s",type:"start",position:{x:0,y:0},data:{config:[],ui:{}}}],edges:[]}))).toThrow();
+ expect(()=>importGraphJson(JSON.stringify({schema_version:"1",nodes:[{id:"s",type:"start",position:{x:0,y:0},data:{config:{},ui:{}}},{id:"o",type:"output",position:{x:0,y:0},data:{config:{},ui:{}}}],edges:[{id:"e",source:"s",target:"o",sourceHandle:42}]}))).toThrow();
 });
 
 it("reports governed loop requirements and ungoverned cycles",()=>{
